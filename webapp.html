@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-top: 10px;
+        }
+        input, select, button {
+            margin-top: 5px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Formulario</h1>
+    <form id="userForm">
+        <label for="name">Nombre:</label>
+        <input type="text" id="name" name="name" placeholder="Tu nombre" required>
+        
+        <label for="sports">Deportes favoritos:</label>
+        <select id="sports" name="sports" multiple required>
+            <option value="Fútbol">Fútbol</option>
+            <option value="Baloncesto">Baloncesto</option>
+            <option value="Tenis">Tenis</option>
+            <option value="Natación">Natación</option>
+        </select>
+        
+        <label for="age">Edad:</label>
+        <input type="number" id="age" name="age" min="1" placeholder="Tu edad" required>
+        
+        <button type="button" onclick="submitForm()">Enviar</button>
+    </form>
+    <script>
+        function submitForm() {
+            const name = document.getElementById('name').value;
+            const sports = Array.from(document.getElementById('sports').selectedOptions).map(opt => opt.value);
+            const age = document.getElementById('age').value;
+
+            // Enviar los datos al bot
+            if (window.Telegram.WebApp) {
+                Telegram.WebApp.sendData(JSON.stringify({ name, sports, age }));
+            } else {
+                alert('Formulario enviado. Telegram WebApp no está disponible.');
+            }
+        }
+    </script>
+</body>
+</html>
