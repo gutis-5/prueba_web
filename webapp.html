@@ -211,9 +211,10 @@
             };
 
             if (window.Telegram.WebApp) {
+                console.log('Sending data to Telegram:', data);
                 Telegram.WebApp.sendData(JSON.stringify(data));
             } else {
-                alert('Formulario enviado. Telegram WebApp no está disponible.');
+                alert('Telegram WebApp is not available. Debugging data: ' + JSON.stringify(data));
             }
         }
     </script>
