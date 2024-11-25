@@ -3,33 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Form Test</title>
+    <title>WebApp Test</title>
 </head>
 <body>
-    <h1>Simple Form</h1>
-    <form id="testForm">
-        <label for="name">Name:</label><br>
-        <input type="text" id="name" placeholder="Your Name"><br><br>
-
-        <label for="age">Age:</label><br>
-        <input type="number" id="age" placeholder="Your Age"><br><br>
-
-        <button type="button" onclick="sendData()">Submit</button>
+    <h1>WebApp Test</h1>
+    <form>
+        <label for="name">Name:</label>
+        <input type="text" id="name" placeholder="Enter your name"><br><br>
+        <label for="age">Age:</label>
+        <input type="number" id="age" placeholder="Enter your age"><br><br>
+        <button type="button" onclick="submitForm()">Submit</button>
     </form>
 
     <script>
-        function sendData() {
-            // Collect form data
-            const name = document.getElementById('name').value;
-            const age = document.getElementById('age').value;
-
-            // Create a simple data object
+        function submitForm() {
+            const name = document.getElementById("name").value;
+            const age = document.getElementById("age").value;
             const data = { name, age };
 
-            // Check if Telegram.WebApp is available and send data
             if (window.Telegram && Telegram.WebApp) {
+                console.log("Sending data to Telegram:", data);
                 Telegram.WebApp.sendData(JSON.stringify(data));
-                console.log("Data sent to Telegram:", data);
             } else {
                 alert("Telegram WebApp is not available.");
             }
