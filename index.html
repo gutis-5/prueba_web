@@ -4,91 +4,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario Interactivo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(120deg, #84fab0, #8fd3f4);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
             color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
 
         .container {
             background: white;
-            padding: 20px 30px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 100%;
             max-width: 400px;
+            width: 100%;
         }
 
         h1 {
             text-align: center;
-            color: #4CAF50;
+            color: #007bff;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
         }
 
         label {
-            font-size: 14px;
-            font-weight: 700;
-            margin-top: 10px;
             display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
 
-        input, button {
+        input, select, button {
             width: 100%;
             padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 14px;
-        }
-
-        input:focus {
-            border-color: #4CAF50;
-            outline: none;
-            box-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
-        }
-
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .multiselect {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .chip {
-            display: inline-block;
-            padding: 8px 12px;
-            background: #e0f7fa;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
+            font-size: 16px;
             margin-top: 5px;
         }
 
-        .chip.selected {
-            background: #4CAF50;
+        button {
+            background-color: #007bff;
             color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-        .chip:hover {
-            background: #b2ebf2;
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .multiselect {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .tag {
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tag .remove {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -96,51 +93,76 @@
     <div class="container">
         <h1>Formulario</h1>
         <form id="userForm">
-            <label for="name">Nombre:</label>
-            <input type="text" id="name" name="name" placeholder="Tu nombre" required>
-
-            <label for="sports">Deportes favoritos:</label>
-            <div id="sports" class="multiselect">
-                <span class="chip" onclick="toggleSport(this, 'Fútbol')">Fútbol</span>
-                <span class="chip" onclick="toggleSport(this, 'Baloncesto')">Baloncesto</span>
-                <span class="chip" onclick="toggleSport(this, 'Tenis')">Tenis</span>
-                <span class="chip" onclick="toggleSport(this, 'Natación')">Natación</span>
-                <span class="chip" onclick="toggleSport(this, 'Ciclismo')">Ciclismo</span>
+            <div class="form-group">
+                <label for="name">Nombre:</label>
+                <input type="text" id="name" name="name" placeholder="Tu nombre" required>
             </div>
-
-            <label for="age">Edad:</label>
-            <input type="number" id="age" name="age" min="1" placeholder="Tu edad" required>
-
+            <div class="form-group">
+                <label for="sports">Deportes favoritos:</label>
+                <div class="multiselect" id="sportsContainer">
+                    <!-- Tags dinámicos aparecerán aquí -->
+                </div>
+                <input type="text" id="sportsInput" placeholder="Escribe un deporte" />
+            </div>
+            <div class="form-group">
+                <label for="age">Edad:</label>
+                <input type="number" id="age" name="age" min="1" placeholder="Tu edad" required>
+            </div>
             <button type="button" onclick="submitForm()">Enviar</button>
         </form>
     </div>
 
     <script>
-        const selectedSports = new Set();
+        // Variables para deportes seleccionados
+        const sportsContainer = document.getElementById('sportsContainer');
+        const sportsInput = document.getElementById('sportsInput');
+        let selectedSports = [];
 
-        function toggleSport(element, sport) {
-            if (selectedSports.has(sport)) {
-                selectedSports.delete(sport);
-                element.classList.remove('selected');
-            } else {
-                selectedSports.add(sport);
-                element.classList.add('selected');
+        // Manejar entrada de deportes
+        sportsInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && sportsInput.value.trim() !== '') {
+                e.preventDefault();
+                addSport(sportsInput.value.trim());
+                sportsInput.value = '';
+            }
+        });
+
+        function addSport(sport) {
+            if (!selectedSports.includes(sport)) {
+                selectedSports.push(sport);
+
+                // Crear etiqueta
+                const tag = document.createElement('div');
+                tag.className = 'tag';
+                tag.innerHTML = `${sport} <span class="remove" onclick="removeSport('${sport}')">&times;</span>`;
+                sportsContainer.appendChild(tag);
             }
         }
 
+        function removeSport(sport) {
+            selectedSports = selectedSports.filter(item => item !== sport);
+            Array.from(sportsContainer.children).forEach(tag => {
+                if (tag.textContent.includes(sport)) {
+                    sportsContainer.removeChild(tag);
+                }
+            });
+        }
+
+        // Enviar formulario
         function submitForm() {
             const name = document.getElementById('name').value;
-            const sports = Array.from(selectedSports);
             const age = document.getElementById('age').value;
 
-            if (!name || sports.length === 0 || !age) {
-                alert("Por favor, completa todos los campos antes de enviar.");
+            // Validar entradas
+            if (!name || !age || selectedSports.length === 0) {
+                alert('Por favor completa todos los campos.');
                 return;
             }
 
-            // Enviar los datos al bot
-            if (window.Telegram && window.Telegram.WebApp) {
-                Telegram.WebApp.sendData(JSON.stringify({ name, sports, age }));
+            // Enviar datos al bot
+            const data = { name, sports: selectedSports, age };
+            if (window.Telegram.WebApp) {
+                Telegram.WebApp.sendData(JSON.stringify(data));
             } else {
                 alert('Formulario enviado. Telegram WebApp no está disponible.');
             }
