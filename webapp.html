@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Formulario Interactivo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -15,7 +15,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
         }
 
         .container {
@@ -23,13 +23,15 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
             max-width: 400px;
-            width: 100%;
+            box-sizing: border-box;
         }
 
         h1 {
             text-align: center;
             color: #007bff;
+            font-size: 1.5rem;
         }
 
         .form-group {
@@ -40,15 +42,21 @@
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
+            font-size: 1rem;
         }
 
         input, select, button {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 1rem;
             margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        input::placeholder {
+            color: #999;
         }
 
         button {
@@ -57,6 +65,7 @@
             border: none;
             cursor: pointer;
             transition: background-color 0.3s;
+            font-size: 1rem;
         }
 
         button:hover {
@@ -71,6 +80,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
+            box-sizing: border-box;
         }
 
         .tag {
@@ -78,7 +88,7 @@
             color: white;
             border-radius: 5px;
             padding: 5px 10px;
-            font-size: 14px;
+            font-size: 0.875rem;
             display: flex;
             align-items: center;
             gap: 5px;
@@ -86,6 +96,21 @@
 
         .tag .remove {
             cursor: pointer;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.25rem;
+            }
+
+            input, select, button {
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+
+            .tag {
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -99,26 +124,38 @@
             </div>
             <div class="form-group">
                 <label for="sports">Deportes favoritos:</label>
-                <div class="multiselect" id="sportsContainer">
-                    <!-- Tags dinámicos aparecerán aquí -->
-                </div>
-                <input type="text" id="sportsInput" placeholder="Escribe un deporte" />
+                <div class="multiselect" id="sportsContainer"></div>
+                <input type="text" id="sportsInput" placeholder="Escribe o selecciona un deporte">
+                <select id="sportsDropdown">
+                    <option value="" disabled selected>Selecciona un deporte</option>
+                    <option value="Fútbol">Fútbol</option>
+                    <option value="Básquetbol">Básquetbol</option>
+                    <option value="Tenis">Tenis</option>
+                    <option value="Natación">Natación</option>
+                    <option value="Correr">Correr</option>
+                    <option value="Ciclismo">Ciclismo</option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="age">Edad:</label>
                 <input type="number" id="age" name="age" min="1" placeholder="Tu edad" required>
+            </div>
+            <div class="form-group">
+                <label for="objectives">Tus 3 objetivos semanales:</label>
+                <input type="text" id="objective1" name="objective1" placeholder="Objetivo 1" required>
+                <input type="text" id="objective2" name="objective2" placeholder="Objetivo 2" required>
+                <input type="text" id="objective3" name="objective3" placeholder="Objetivo 3" required>
             </div>
             <button type="button" onclick="submitForm()">Enviar</button>
         </form>
     </div>
 
     <script>
-        // Variables para deportes seleccionados
         const sportsContainer = document.getElementById('sportsContainer');
         const sportsInput = document.getElementById('sportsInput');
+        const sportsDropdown = document.getElementById('sportsDropdown');
         let selectedSports = [];
 
-        // Manejar entrada de deportes
         sportsInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && sportsInput.value.trim() !== '') {
                 e.preventDefault();
@@ -127,11 +164,17 @@
             }
         });
 
+        sportsDropdown.addEventListener('change', function () {
+            const selectedSport = sportsDropdown.value;
+            if (selectedSport && !selectedSports.includes(selectedSport)) {
+                addSport(selectedSport);
+            }
+            sportsDropdown.selectedIndex = 0;
+        });
+
         function addSport(sport) {
             if (!selectedSports.includes(sport)) {
                 selectedSports.push(sport);
-
-                // Crear etiqueta
                 const tag = document.createElement('div');
                 tag.className = 'tag';
                 tag.innerHTML = `${sport} <span class="remove" onclick="removeSport('${sport}')">&times;</span>`;
@@ -148,19 +191,25 @@
             });
         }
 
-        // Enviar formulario
         function submitForm() {
             const name = document.getElementById('name').value;
             const age = document.getElementById('age').value;
+            const objective1 = document.getElementById('objective1').value;
+            const objective2 = document.getElementById('objective2').value;
+            const objective3 = document.getElementById('objective3').value;
 
-            // Validar entradas
-            if (!name || !age || selectedSports.length === 0) {
+            if (!name || !age || selectedSports.length === 0 || !objective1 || !objective2 || !objective3) {
                 alert('Por favor completa todos los campos.');
                 return;
             }
 
-            // Enviar datos al bot
-            const data = { name, sports: selectedSports, age };
+            const data = {
+                name,
+                sports: selectedSports,
+                age,
+                objectives: [objective1, objective2, objective3]
+            };
+
             if (window.Telegram.WebApp) {
                 Telegram.WebApp.sendData(JSON.stringify(data));
             } else {
