@@ -1,12 +1,9 @@
 <html ng-app="custom-webapp-ui" lang="en">
   <head>
-    <!-- Load the Telegram Library -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Load the AngularJS Library -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-      /* General body styling */
       body {
         font-family: 'Arial', sans-serif;
         background: linear-gradient(135deg, #e2ffed 20%, #bfdfc2 100%);
@@ -20,9 +17,9 @@
         align-items: center;
         justify-content: center;
         box-sizing: border-box;
+        overflow: hidden;
       }
 
-      /* Container styling for the form */
       .container {
         background: #f3faf3;
         border: 2px solid #b6d3b7;
@@ -32,6 +29,8 @@
         max-width: 400px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         box-sizing: border-box;
+        overflow-y: auto;
+        flex: 1;
       }
 
       .container h1 {
@@ -65,33 +64,6 @@
         box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
       }
 
-      .sports-container ul {
-        padding: 0;
-        margin: 10px 0 0;
-        list-style: none;
-      }
-
-      .sports-container ul li {
-        background: #f1f8e9;
-        padding: 8px 12px;
-        margin-bottom: 5px;
-        border-radius: 8px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.9em;
-      }
-
-      .sports-container ul li button {
-        background: #f08a83;
-        border: none;
-        color: white;
-        border-radius: 50%;
-        cursor: pointer;
-        padding: 5px 10px;
-        font-size: 0.9em;
-      }
-
       button.add-btn, button#submit {
         background: #446ad4;
         border: none;
@@ -108,50 +80,15 @@
       button.add-btn:hover, button#submit:hover {
         background: #31306d;
       }
-
-      /* Responsive adjustments */
-      @media (max-width: 768px) {
-        body {
-          padding: 10px;
-        }
-
-        .container {
-          padding: 15px;
-        }
-
-        .container h1 {
-          font-size: 1.5em;
-        }
-
-        label {
-          font-size: 0.9em;
-        }
-
-        input[type="text"], input[type="number"] {
-          font-size: 0.9em;
-        }
-
-        button.add-btn, button#submit {
-          font-size: 0.9em;
-        }
-
-        .sports-container ul li {
-          font-size: 0.85em;
-        }
-
-        .sports-container ul li button {
-          font-size: 0.8em;
-        }
-      }
     </style>
-    
+
     <script>
-      angular.module("custom-webapp-ui", []).controller('CustomUIController', function CustomUIController($scope) {
+      angular.module("custom-webapp-ui", []).controller("CustomUIController", function CustomUIController($scope) {
         $scope.userInfo = {
           name: "",
           age: "",
           sports: [],
-          goals: { goal1: "", goal2: "", goal3: "" }
+          goals: { goal1: "", goal2: "", goal3: "" },
         };
 
         $scope.newSport = "";
@@ -197,8 +134,16 @@
         mainButton.disable();
         mainButton.show();
 
-        // Ensure full expansion in the Telegram app
+        // Expand the WebApp to use full space
         window.Telegram.WebApp.expand();
+
+        // Handle viewport resizing to accommodate the keyboard
+        window.addEventListener("resize", () => {
+          const activeElement = document.activeElement;
+          if (activeElement && ["INPUT", "TEXTAREA"].includes(activeElement.tagName)) {
+            activeElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        });
       });
     </script>
   </head>
