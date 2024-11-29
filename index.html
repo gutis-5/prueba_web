@@ -1,220 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Formulario Interactivo</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Edad</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            color: #333;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
-            align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
         }
-
         .container {
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 400px;
-            box-sizing: border-box;
-        }
-
-        h1 {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             text-align: center;
-            color: #007bff;
-            font-size: 1.5rem;
         }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-
-        input, select, button {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
+        input {
+            margin-top: 10px;
+            padding: 10px;
+            width: 80%;
+            border: 1px solid #ccc;
             border-radius: 5px;
-            font-size: 1rem;
-            margin-top: 5px;
-            box-sizing: border-box;
         }
-
-        input::placeholder {
-            color: #999;
-        }
-
         button {
+            margin-top: 20px;
+            padding: 10px 20px;
             background-color: #007bff;
             color: white;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
-            font-size: 1rem;
         }
-
         button:hover {
             background-color: #0056b3;
-        }
-
-        .multiselect {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background: #f9f9f9;
-            padding: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            box-sizing: border-box;
-        }
-
-        .tag {
-            background: #007bff;
-            color: white;
-            border-radius: 5px;
-            padding: 5px 10px;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .tag .remove {
-            cursor: pointer;
-        }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.25rem;
-            }
-
-            input, select, button {
-                font-size: 0.9rem;
-                padding: 10px;
-            }
-
-            .tag {
-                font-size: 0.8rem;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Formulario</h1>
-        <form id="userForm">
-            <div class="form-group">
-                <label for="name">Nombre:</label>
-                <input type="text" id="name" name="name" placeholder="Tu nombre" required>
-            </div>
-            <div class="form-group">
-                <label for="sports">Deportes favoritos:</label>
-                <div class="multiselect" id="sportsContainer"></div>
-                <input type="text" id="sportsInput" placeholder="Escribe o selecciona un deporte">
-                <select id="sportsDropdown">
-                    <option value="" disabled selected>Selecciona un deporte</option>
-                    <option value="Fútbol">Fútbol</option>
-                    <option value="Básquetbol">Básquetbol</option>
-                    <option value="Tenis">Tenis</option>
-                    <option value="Natación">Natación</option>
-                    <option value="Correr">Correr</option>
-                    <option value="Ciclismo">Ciclismo</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="age">Edad:</label>
-                <input type="number" id="age" name="age" min="1" placeholder="Tu edad" required>
-            </div>
-            <div class="form-group">
-                <label for="objectives">Tus 3 objetivos semanales:</label>
-                <input type="text" id="objective1" name="objective1" placeholder="Objetivo 1" required>
-                <input type="text" id="objective2" name="objective2" placeholder="Objetivo 2" required>
-                <input type="text" id="objective3" name="objective3" placeholder="Objetivo 3" required>
-            </div>
-            <button type="button" onclick="submitForm()">Enviar</button>
-        </form>
+        <h1>Introduce tu Edad</h1>
+        <input type="number" id="age" placeholder="Tu edad" min="0" max="120" required>
+        <button onclick="sendAge()">Enviar</button>
     </div>
 
     <script>
-        const sportsContainer = document.getElementById('sportsContainer');
-        const sportsInput = document.getElementById('sportsInput');
-        const sportsDropdown = document.getElementById('sportsDropdown');
-        let selectedSports = [];
-
-        sportsInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && sportsInput.value.trim() !== '') {
-                e.preventDefault();
-                addSport(sportsInput.value.trim());
-                sportsInput.value = '';
-            }
-        });
-
-        sportsDropdown.addEventListener('change', function () {
-            const selectedSport = sportsDropdown.value;
-            if (selectedSport && !selectedSports.includes(selectedSport)) {
-                addSport(selectedSport);
-            }
-            sportsDropdown.selectedIndex = 0;
-        });
-
-        function addSport(sport) {
-            if (!selectedSports.includes(sport)) {
-                selectedSports.push(sport);
-                const tag = document.createElement('div');
-                tag.className = 'tag';
-                tag.innerHTML = `${sport} <span class="remove" onclick="removeSport('${sport}')">&times;</span>`;
-                sportsContainer.appendChild(tag);
-            }
-        }
-
-        function removeSport(sport) {
-            selectedSports = selectedSports.filter(item => item !== sport);
-            Array.from(sportsContainer.children).forEach(tag => {
-                if (tag.textContent.includes(sport)) {
-                    sportsContainer.removeChild(tag);
-                }
-            });
-        }
-
-        function submitForm() {
-            const name = document.getElementById('name').value;
+        function sendAge() {
+            // Obtén el valor de la edad ingresada
             const age = document.getElementById('age').value;
-            const objective1 = document.getElementById('objective1').value;
-            const objective2 = document.getElementById('objective2').value;
-            const objective3 = document.getElementById('objective3').value;
 
-            if (!name || !age || selectedSports.length === 0 || !objective1 || !objective2 || !objective3) {
-                alert('Por favor completa todos los campos.');
-                return;
-            }
-
-            const data = {
-                name,
-                sports: selectedSports,
-                age,
-                objectives: [objective1, objective2, objective3]
-            };
-
-            if (window.Telegram && Telegram.WebApp) {
-                console.log("Sending data to Telegram:", data);
-                Telegram.WebApp.sendData(JSON.stringify(data));
+            if (age) {
+                // Envía los datos al bot usando Telegram WebApp API
+                Telegram.WebApp.sendData(JSON.stringify({ age: age }));
+                
+                // Opcional: Mensaje de confirmación local
+                alert("Tu edad ha sido enviada al bot.");
             } else {
-                alert('Formulario enviado. Telegram WebApp no está disponible.');
+                alert("Por favor, ingresa una edad válida.");
             }
         }
     </script>
