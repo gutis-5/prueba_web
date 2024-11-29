@@ -3,8 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Edad</title>
+    <title>Depuración de WebApp</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Confirmar que la WebApp se ha inicializado
+        console.log("Inicializando WebApp...");
+        if (Telegram.WebApp.initData) {
+            console.log("WebApp inicializada correctamente:", Telegram.WebApp.initData);
+        } else {
+            console.error("Error: La WebApp no se inicializó correctamente.");
+        }
+
+        function sendAge() {
+            const ageInput = document.getElementById('age').value;
+
+            if (ageInput && !isNaN(ageInput)) {
+                const data = { age: ageInput }; // Crear JSON
+                console.log("Datos a enviar:", data);
+
+                try {
+                    Telegram.WebApp.sendData(JSON.stringify(data));
+                    console.log("Datos enviados correctamente.");
+                    alert("Tu edad ha sido enviada al bot.");
+                } catch (error) {
+                    console.error("Error enviando datos al bot:", error);
+                }
+            } else {
+                console.warn("Entrada inválida. Por favor, ingresa un número válido.");
+                alert("Por favor, ingresa un número válido.");
+            }
+        }
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -50,22 +79,5 @@
         <input type="number" id="age" placeholder="Tu edad" min="0" max="120" required>
         <button onclick="sendAge()">Enviar</button>
     </div>
-
-    <script>
-        function sendAge() {
-            // Obtén el valor de la edad ingresada
-            const age = document.getElementById('age').value;
-
-            if (age) {
-                // Envía los datos al bot usando Telegram WebApp API
-                Telegram.WebApp.sendData(JSON.stringify({ age: age }));
-                
-                // Opcional: Mensaje de confirmación local
-                alert("Tu edad ha sido enviada al bot.");
-            } else {
-                alert("Por favor, ingresa una edad válida.");
-            }
-        }
-    </script>
 </body>
 </html>
