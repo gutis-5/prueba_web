@@ -5,59 +5,50 @@
     <!-- Load the AngularJS Library -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <script>
-      // Initialize the AngularJS app and controller
+      // Initialize the AngularJS application
       angular.module("custom-webapp-ui", []).controller('CustomUIController', function CustomUIController($scope) {
-        // Initialize the form fields
-        $scope.user = {
+        // Initialize user input fields
+        $scope.userInfo = {
           name: "",
           age: "",
-          sports: [],
-          goals: ["", "", ""]
+          favoriteSport: "",
+          goal: ""
         };
 
-        // List of available sports for the multi-select
-        $scope.availableSports = ["Football", "Basketball", "Tennis", "Swimming", "Running", "Cycling"];
-
-        // Configure the Telegram MainButton
+        // Initialize the "Save" button for Telegram
         const mainButton = window.Telegram.WebApp.MainButton;
-        mainButton.text = "Submit Registration";
+        mainButton.text = "Submit Information";
         mainButton.enable();
         mainButton.show();
 
-        // Handle button click to send user data
+        // Define action on button click
         mainButton.onClick(function () {
-          window.Telegram.WebApp.sendData(JSON.stringify($scope.user));
+          // Send userInfo as a JSON string to the backend
+          window.Telegram.WebApp.sendData(JSON.stringify($scope.userInfo));
         });
       });
     </script>
   </head>
   <body ng-controller="CustomUIController">
-    <h1>User Registration</h1>
     <div>
+      <!-- Input for Name -->
       <label for="name">Name:</label>
-      <input id="name" type="text" ng-model="user.name" placeholder="Enter your name" required>
+      <input type="text" id="name" ng-model="userInfo.name" placeholder="Enter your name">
     </div>
     <div>
+      <!-- Input for Age -->
       <label for="age">Age:</label>
-      <input id="age" type="number" ng-model="user.age" placeholder="Enter your age" min="1" required>
+      <input type="number" id="age" ng-model="userInfo.age" placeholder="Enter your age">
     </div>
     <div>
-      <label for="sports">Favorite Sports:</label>
-      <select id="sports" multiple ng-model="user.sports">
-        <option ng-repeat="sport in availableSports" value="{{sport}}">{{sport}}</option>
-      </select>
+      <!-- Input for Favorite Sport -->
+      <label for="favoriteSport">Favorite Sport:</label>
+      <input type="text" id="favoriteSport" ng-model="userInfo.favoriteSport" placeholder="Enter your favorite sport">
     </div>
     <div>
-      <label>Weekly Goals:</label>
-      <div>
-        <input type="text" ng-model="user.goals[0]" placeholder="Goal 1">
-      </div>
-      <div>
-        <input type="text" ng-model="user.goals[1]" placeholder="Goal 2">
-      </div>
-      <div>
-        <input type="text" ng-model="user.goals[2]" placeholder="Goal 3">
-      </div>
+      <!-- Input for Goal -->
+      <label for="goal">Goal:</label>
+      <input type="text" id="goal" ng-model="userInfo.goal" placeholder="Enter your goal">
     </div>
   </body>
 </html>
