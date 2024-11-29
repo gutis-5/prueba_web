@@ -11,8 +11,26 @@
         $scope.userInfo = {
           name: "",
           age: "",
-          favoriteSport: "",
-          goal: ""
+          sports: [], // List of sports
+          goals: {
+            goal1: "",
+            goal2: "",
+            goal3: ""
+          }
+        };
+
+        // Add a new sport to the list
+        $scope.newSport = "";
+        $scope.addSport = function () {
+          if ($scope.newSport.trim()) {
+            $scope.userInfo.sports.push($scope.newSport.trim());
+            $scope.newSport = ""; // Clear input after adding
+          }
+        };
+
+        // Remove a sport from the list
+        $scope.removeSport = function (index) {
+          $scope.userInfo.sports.splice(index, 1);
         };
 
         // Initialize the "Save" button for Telegram
@@ -41,14 +59,31 @@
       <input type="number" id="age" ng-model="userInfo.age" placeholder="Enter your age">
     </div>
     <div>
-      <!-- Input for Favorite Sport -->
-      <label for="favoriteSport">Favorite Sport:</label>
-      <input type="text" id="favoriteSport" ng-model="userInfo.favoriteSport" placeholder="Enter your favorite sport">
+      <!-- Input for Sports -->
+      <label for="sports">Favorite Sports:</label>
+      <input type="text" id="sports" ng-model="newSport" placeholder="Enter a sport">
+      <button ng-click="addSport()">Add Sport</button>
+      <ul>
+        <li ng-repeat="sport in userInfo.sports track by $index">
+          {{sport}} <button ng-click="removeSport($index)">Remove</button>
+        </li>
+      </ul>
     </div>
     <div>
-      <!-- Input for Goal -->
-      <label for="goal">Goal:</label>
-      <input type="text" id="goal" ng-model="userInfo.goal" placeholder="Enter your goal">
+      <!-- Input for Goals -->
+      <label>Goals:</label>
+      <div>
+        <label for="goal1">Goal 1:</label>
+        <input type="text" id="goal1" ng-model="userInfo.goals.goal1" placeholder="Enter your first goal">
+      </div>
+      <div>
+        <label for="goal2">Goal 2:</label>
+        <input type="text" id="goal2" ng-model="userInfo.goals.goal2" placeholder="Enter your second goal">
+      </div>
+      <div>
+        <label for="goal3">Goal 3:</label>
+        <input type="text" id="goal3" ng-model="userInfo.goals.goal3" placeholder="Enter your third goal">
+      </div>
     </div>
   </body>
 </html>
