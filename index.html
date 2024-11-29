@@ -4,6 +4,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Load the AngularJS Library -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
       /* General body styling */
       body {
@@ -17,6 +18,7 @@
         align-items: center;
         justify-content: center;
         min-height: 100vh;
+        box-sizing: border-box;
       }
 
       /* Container styling for the form */
@@ -28,6 +30,7 @@
         width: 90%;
         max-width: 400px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        box-sizing: border-box;
       }
 
       .container h1 {
@@ -42,11 +45,12 @@
         margin-top: 15px;
         font-weight: bold;
         color: #333;
+        font-size: 1em;
       }
 
       input[type="text"], input[type="number"] {
         width: 100%;
-        padding: 10px 12px;
+        padding: 10px;
         border: 1px solid #ddd;
         border-radius: 8px;
         margin-top: 5px;
@@ -74,7 +78,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        color: #333;
+        font-size: 0.9em;
       }
 
       .sports-container ul li button {
@@ -84,14 +88,14 @@
         border-radius: 50%;
         cursor: pointer;
         padding: 5px 10px;
-        font-size: 14px;
+        font-size: 0.9em;
       }
 
-      button.add-btn {
+      button.add-btn, button#submit {
         background: #446ad4;
         border: none;
         color: white;
-        padding: 10px 15px;
+        padding: 10px;
         border-radius: 8px;
         cursor: pointer;
         margin-top: 10px;
@@ -100,29 +104,16 @@
         font-size: 1em;
       }
 
-      button.add-btn:hover {
-        background: #31306d;
-      }
-
-      button#submit {
-        background: #446ad4;
-        border: none;
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        margin-top: 20px;
-        display: block;
-        width: 100%;
-        font-size: 1.2em;
-      }
-
-      button#submit:hover {
+      button.add-btn:hover, button#submit:hover {
         background: #31306d;
       }
 
       /* Responsive adjustments */
       @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+
         .container {
           padding: 15px;
         }
@@ -140,89 +131,80 @@
         }
 
         button.add-btn, button#submit {
-          font-size: 1em;
+          font-size: 0.9em;
+        }
+
+        .sports-container ul li {
+          font-size: 0.85em;
+        }
+
+        .sports-container ul li button {
+          font-size: 0.8em;
         }
       }
     </style>
     
     <script>
-  angular.module("custom-webapp-ui", []).controller('CustomUIController', function CustomUIController($scope) {
-    // Initialize user input fields
-    $scope.userInfo = {
-      name: "",
-      age: "",
-      sports: [], // List of sports
-      goals: {
-        goal1: "",
-        goal2: "",
-        goal3: ""
-      }
-    };
+      angular.module("custom-webapp-ui", []).controller('CustomUIController', function CustomUIController($scope) {
+        $scope.userInfo = {
+          name: "",
+          age: "",
+          sports: [],
+          goals: { goal1: "", goal2: "", goal3: "" }
+        };
 
-    // Add a new sport to the list
-    $scope.newSport = "";
-    $scope.addSport = function () {
-      if ($scope.newSport.trim()) {
-        $scope.userInfo.sports.push($scope.newSport.trim());
-        $scope.newSport = ""; // Clear input after adding
-      }
-    };
+        $scope.newSport = "";
+        $scope.addSport = function () {
+          if ($scope.newSport.trim()) {
+            $scope.userInfo.sports.push($scope.newSport.trim());
+            $scope.newSport = "";
+          }
+        };
 
-    // Remove a sport from the list
-    $scope.removeSport = function (index) {
-      $scope.userInfo.sports.splice(index, 1);
-    };
+        $scope.removeSport = function (index) {
+          $scope.userInfo.sports.splice(index, 1);
+        };
 
-    // Validation function to check if all fields are filled
-    $scope.isFormValid = function () {
-      const { name, age, sports, goals } = $scope.userInfo;
-      return (
-        name.trim() !== "" &&
-        age !== "" &&
-        sports.length > 0 &&
-        goals.goal1.trim() !== "" &&
-        goals.goal2.trim() !== "" &&
-        goals.goal3.trim() !== ""
-      );
-    };
+        $scope.isFormValid = function () {
+          const { name, age, sports, goals } = $scope.userInfo;
+          return (
+            name.trim() !== "" &&
+            age !== "" &&
+            sports.length > 0 &&
+            goals.goal1.trim() !== "" &&
+            goals.goal2.trim() !== "" &&
+            goals.goal3.trim() !== ""
+          );
+        };
 
-    // Watch for changes and toggle MainButton accordingly
-    const mainButton = window.Telegram.WebApp.MainButton;
-    $scope.$watch($scope.isFormValid, function (isValid) {
-      if (isValid) {
-        mainButton.enable();
-      } else {
+        const mainButton = window.Telegram.WebApp.MainButton;
+        $scope.$watch($scope.isFormValid, function (isValid) {
+          if (isValid) {
+            mainButton.enable();
+          } else {
+            mainButton.disable();
+          }
+        });
+
+        mainButton.text = "Completar registro";
+        mainButton.onClick(function () {
+          if ($scope.isFormValid()) {
+            window.Telegram.WebApp.sendData(JSON.stringify($scope.userInfo));
+          }
+        });
+
         mainButton.disable();
-      }
-    });
-
-    // Define action on button click
-    mainButton.text = "Completar registro";
-    mainButton.onClick(function () {
-      if ($scope.isFormValid()) {
-        window.Telegram.WebApp.sendData(JSON.stringify($scope.userInfo));
-      }
-    });
-
-    // Initialize MainButton state
-    mainButton.disable();
-    mainButton.show();
-  });
-</script>
-
+        mainButton.show();
+      });
+    </script>
   </head>
   <body ng-controller="CustomUIController">
     <div class="container">
       <h1>User Information</h1>
-      <!-- Input for Name -->
       <label for="name">Nombre:</label>
       <input type="text" id="name" ng-model="userInfo.name" placeholder="Enter your name">
-
-      <!-- Input for Age -->
       <label for="age">Edad:</label>
       <input type="number" id="age" ng-model="userInfo.age" placeholder="Enter your age">
-
-      <!-- Input for Sports -->
       <label for="sports">Habitos a mantener:</label>
       <input type="text" id="sports" ng-model="newSport" placeholder="Enter a sport">
       <button class="add-btn" ng-click="addSport()">Añadir habito</button>
@@ -233,8 +215,6 @@
           </li>
         </ul>
       </div>
-
-      <!-- Input for Goals -->
       <label>Objetivos:</label>
       <div>
         <label for="goal1">Objetivo 1:</label>
@@ -248,7 +228,6 @@
         <label for="goal3">Objetivo 3:</label>
         <input type="text" id="goal3" ng-model="userInfo.goals.goal3" placeholder="Enter your third goal">
       </div>
-
     </div>
   </body>
 </html>
