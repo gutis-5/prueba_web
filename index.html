@@ -131,8 +131,10 @@
         }
 
         .container {
-          padding: 15px;
+          max-height: 100%;
+          overflow: hidden;
         }
+
 
         .container h1 {
           font-size: 1.5em;
@@ -216,6 +218,25 @@
         window.Telegram.WebApp.expand();
       });
     </script>
+
+    <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const container = document.querySelector('.container');
+    const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
+
+    inputs.forEach(input => {
+      input.addEventListener('focus', () => {
+        container.style.height = 'auto';
+        container.style.overflowY = 'scroll';
+      });
+
+      input.addEventListener('blur', () => {
+        container.style.height = '';
+        container.style.overflowY = '';
+      });
+    });
+  });
+</script>
   </head>
   <body ng-controller="CustomUIController">
     <div class="container">
