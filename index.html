@@ -7,8 +7,8 @@
     <style>
       body {
         font-family: Arial, sans-serif;
-        background: linear-gradient(135deg, #f3f9fe, #dff6fd);
-        color: #333;
+        background: linear-gradient(135deg, #72edf2 0%, #5151e5 100%);
+        color: #fff;
         margin: 0;
         padding: 0;
         display: flex;
@@ -18,17 +18,17 @@
         min-height: 100vh;
       }
       .container {
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.1);
         border-radius: 12px;
         padding: 20px;
         width: 90%;
         max-width: 400px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       }
       .container h1 {
         text-align: center;
         margin-bottom: 20px;
-        color: #4a90e2;
+        color: #fff;
       }
       label {
         display: block;
@@ -38,22 +38,21 @@
       input[type="text"], input[type="number"] {
         width: 100%;
         padding: 8px 10px;
-        border: 1px solid #ddd;
+        border: none;
         border-radius: 8px;
         margin-top: 5px;
       }
       input[type="text"]:focus, input[type="number"]:focus {
         outline: none;
-        border-color: #4a90e2;
-        box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+        box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
       }
-      .habits-container ul {
+      .sports-container ul {
         padding: 0;
         margin: 10px 0 0;
         list-style: none;
       }
-      .habits-container ul li {
-        background: #e9f5fe;
+      .sports-container ul li {
+        background: rgba(255, 255, 255, 0.2);
         padding: 5px 10px;
         margin-bottom: 5px;
         border-radius: 8px;
@@ -61,7 +60,7 @@
         justify-content: space-between;
         align-items: center;
       }
-      .habits-container ul li button {
+      .sports-container ul li button {
         background: red;
         border: none;
         color: white;
@@ -70,11 +69,11 @@
         padding: 5px;
         font-size: 14px;
       }
-      button.add-btn, button#submit {
-        background: #4a90e2;
+      button.add-btn {
+        background: #00c853;
         border: none;
         color: white;
-        padding: 10px 15px;
+        padding: 8px 12px;
         border-radius: 8px;
         cursor: pointer;
         margin-top: 10px;
@@ -82,108 +81,108 @@
         width: 100%;
         font-size: 16px;
       }
-      button.add-btn:hover, button#submit:hover {
-        background: #3a78c2;
+      button.add-btn:hover {
+        background: #00b347;
+      }
+      button#submit {
+        background: #1e88e5;
+        border: none;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 20px;
+        display: block;
+        width: 100%;
+        font-size: 18px;
+      }
+      button#submit:hover {
+        background: #1565c0;
       }
     </style>
     <script>
-  angular.module("custom-webapp-ui", []).controller('CustomUIController', function CustomUIController($scope) {
-    $scope.userInfo = {
-      name: "",
-      age: "",
-      habits: [],
-      goals: {
-        goal1: "",
-        goal2: "",
-        goal3: ""
-      }
-    };
-    $scope.newHabit = "";
+      // Initialize the AngularJS application
+      angular.module("custom-webapp-ui", []).controller('CustomUIController', function CustomUIController($scope) {
+        // Initialize user input fields
+        $scope.userInfo = {
+          name: "",
+          age: "",
+          sports: [], // List of sports
+          goals: {
+            goal1: "",
+            goal2: "",
+            goal3: ""
+          }
+        };
 
-    $scope.addHabit = function () {
-      if ($scope.newHabit.trim()) {
-        $scope.userInfo.habits.push($scope.newHabit.trim());
-        $scope.newHabit = "";
-      }
-    };
+        // Add a new sport to the list
+        $scope.newSport = "";
+        $scope.addSport = function () {
+          if ($scope.newSport.trim()) {
+            $scope.userInfo.sports.push($scope.newSport.trim());
+            $scope.newSport = ""; // Clear input after adding
+          }
+        };
 
-    $scope.removeHabit = function (index) {
-      $scope.userInfo.habits.splice(index, 1);
-    };
+        // Remove a sport from the list
+        $scope.removeSport = function (index) {
+          $scope.userInfo.sports.splice(index, 1);
+        };
 
-    const mainButton = window.Telegram.WebApp.MainButton;
-    mainButton.text = "Completar registro";
-    mainButton.disable(); // Deshabilitado por defecto
-    mainButton.show();
-
-    // Función para verificar que todos los campos estén llenos
-    $scope.isFormComplete = function () {
-      const { name, age, habits, goals } = $scope.userInfo;
-      return (
-        name.trim() &&
-        age &&
-        habits.length > 0 &&
-        goals.goal1.trim() &&
-        goals.goal2.trim() &&
-        goals.goal3.trim()
-      );
-    };
-
-    // Observar cambios en los datos del formulario
-    $scope.$watch('userInfo', function () {
-      if ($scope.isFormComplete()) {
+        // Initialize the "Save" button for Telegram
+        const mainButton = window.Telegram.WebApp.MainButton;
+        mainButton.text = "Submit Information";
         mainButton.enable();
-      } else {
-        mainButton.disable();
-      }
-    }, true);
+        mainButton.show();
 
-    // Manejar el clic del botón principal
-    mainButton.onClick(function () {
-      if ($scope.isFormComplete()) {
-        window.Telegram.WebApp.sendData(JSON.stringify($scope.userInfo));
-      } else {
-        alert("Por favor, completa todos los campos antes de enviar.");
-      }
-    });
-  });
-</script>
-
+        // Define action on button click
+        mainButton.onClick(function () {
+          // Send userInfo as a JSON string to the backend
+          window.Telegram.WebApp.sendData(JSON.stringify($scope.userInfo));
+        });
+      });
+    </script>
   </head>
   <body ng-controller="CustomUIController">
     <div class="container">
-      <h1>Registro de Usuario</h1>
-      <label for="name">Nombre:</label>
-      <input type="text" id="name" ng-model="userInfo.name" placeholder="Ingresa tu nombre">
+      <h1>User Information</h1>
+      <!-- Input for Name -->
+      <label for="name">Name:</label>
+      <input type="text" id="name" ng-model="userInfo.name" placeholder="Enter your name">
 
-      <label for="age">Edad:</label>
-      <input type="number" id="age" ng-model="userInfo.age" placeholder="Ingresa tu edad">
+      <!-- Input for Age -->
+      <label for="age">Age:</label>
+      <input type="number" id="age" ng-model="userInfo.age" placeholder="Enter your age">
 
-      <label for="habits">Hábitos que quieres seguir:</label>
-      <input type="text" id="habits" ng-model="newHabit" placeholder="Escribe un hábito">
-      <button class="add-btn" ng-click="addHabit()">Agregar Hábito</button>
-      <div class="habits-container">
+      <!-- Input for Sports -->
+      <label for="sports">Favorite Sports:</label>
+      <input type="text" id="sports" ng-model="newSport" placeholder="Enter a sport">
+      <button class="add-btn" ng-click="addSport()">Add Sport</button>
+      <div class="sports-container">
         <ul>
-          <li ng-repeat="habit in userInfo.habits track by $index">
-            {{habit}} <button ng-click="removeHabit($index)">x</button>
+          <li ng-repeat="sport in userInfo.sports track by $index">
+            {{sport}} <button ng-click="removeSport($index)">x</button>
           </li>
         </ul>
       </div>
 
-      <label>Objetivos:</label>
+      <!-- Input for Goals -->
+      <label>Goals:</label>
       <div>
-        <label for="goal1">Objetivo 1:</label>
-        <input type="text" id="goal1" ng-model="userInfo.goals.goal1" placeholder="Escribe tu primer objetivo">
+        <label for="goal1">Goal 1:</label>
+        <input type="text" id="goal1" ng-model="userInfo.goals.goal1" placeholder="Enter your first goal">
       </div>
       <div>
-        <label for="goal2">Objetivo 2:</label>
-        <input type="text" id="goal2" ng-model="userInfo.goals.goal2" placeholder="Escribe tu segundo objetivo">
+        <label for="goal2">Goal 2:</label>
+        <input type="text" id="goal2" ng-model="userInfo.goals.goal2" placeholder="Enter your second goal">
       </div>
       <div>
-        <label for="goal3">Objetivo 3:</label>
-        <input type="text" id="goal3" ng-model="userInfo.goals.goal3" placeholder="Escribe tu tercer objetivo">
+        <label for="goal3">Goal 3:</label>
+        <input type="text" id="goal3" ng-model="userInfo.goals.goal3" placeholder="Enter your third goal">
       </div>
 
+      <!-- Submit Button -->
+      <button id="submit" ng-click="submit()">Submit Information</button>
     </div>
   </body>
 </html>
