@@ -8,18 +8,20 @@
     <style>
       /* General body styling */
       body {
-        font-family: 'Arial', sans-serif;
-        background: linear-gradient(135deg, #e2ffed 20%, #bfdfc2 100%);
-        color: #333;
-        margin: 0;
-        padding: 0;
+        width: 100vw;
+        height: 100%;
+        min-height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         box-sizing: border-box;
-        min-height: 100%; /* To handle dynamic height adjustments */
       }
+      
+      html, body {
+        overflow: hidden;
+      }
+
 
       /* Container styling for the form */
       .container {
@@ -102,17 +104,10 @@
         display: block;
         width: 100%;
         font-size: 1em;
-        transition: background-color 0.3s ease;
       }
 
       button.add-btn:hover, button#submit:hover {
         background: #31306d;
-      }
-
-      /* Disabled button for Telegram */
-      button#submit.disabled {
-        background: #cccccc; /* Gray background */
-        cursor: not-allowed;
       }
 
       /* Responsive adjustments */
@@ -188,10 +183,8 @@
         $scope.$watch($scope.isFormValid, function (isValid) {
           if (isValid) {
             mainButton.enable();
-            document.getElementById('submit').classList.remove('disabled');
           } else {
             mainButton.disable();
-            document.getElementById('submit').classList.add('disabled');
           }
         });
 
@@ -205,14 +198,6 @@
         mainButton.disable();
         mainButton.show();
 
-        // Dynamic height adjustment for mobile keyboards
-        function adjustHeight() {
-          document.body.style.height = `${window.innerHeight}px`;
-        }
-
-        window.addEventListener('resize', adjustHeight);
-        adjustHeight(); // Call on load
-
         // Ensure full expansion in the Telegram app
         window.Telegram.WebApp.expand();
       });
@@ -222,7 +207,7 @@
     <div class="container">
       <h1>User Information</h1>
       <label for="name">Nombre:</label>
-      <input type="text" id="name" ng-model="userInfo.name" placeholder="Ponga como quieres que te llame">
+      <input type="text" id="name" ng-model="userInfo.name" placeholder="Enter your nombre">
       <label for="age">Edad:</label>
       <input type="number" id="age" ng-model="userInfo.age" placeholder="Enter your age">
       <label for="sports">Habitos a mantener:</label>
@@ -248,7 +233,6 @@
         <label for="goal3">Objetivo 3:</label>
         <input type="text" id="goal3" ng-model="userInfo.goals.goal3" placeholder="Enter your third goal">
       </div>
-      <button id="submit" class="disabled">Completar registro</button>
     </div>
   </body>
 </html>
