@@ -13,17 +13,15 @@
         color: #333;
         margin: 0;
         padding: 0;
-        width: 100vw;
-        height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: center;
         box-sizing: border-box;
-        overflow: hidden;
+        min-height: 100%; /* To handle dynamic height adjustments */
       }
 
-      /* Ensure container adjusts properly */
+      /* Container styling for the form */
       .container {
         background: #f3faf3;
         border: 2px solid #b6d3b7;
@@ -33,8 +31,6 @@
         max-width: 400px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         box-sizing: border-box;
-        margin-top: 10px;
-        flex-shrink: 0;
       }
 
       .container h1 {
@@ -106,20 +102,17 @@
         display: block;
         width: 100%;
         font-size: 1em;
-        transition: background-color 0.3s;
+        transition: background-color 0.3s ease;
       }
 
-      button.add-btn:hover {
+      button.add-btn:hover, button#submit:hover {
         background: #31306d;
       }
 
-      button#submit:disabled {
-        background-color: #aaa;
+      /* Disabled button for Telegram */
+      button#submit.disabled {
+        background: #cccccc; /* Gray background */
         cursor: not-allowed;
-      }
-
-      button#submit:hover:not(:disabled) {
-        background: #31306d;
       }
 
       /* Responsive adjustments */
@@ -195,10 +188,10 @@
         $scope.$watch($scope.isFormValid, function (isValid) {
           if (isValid) {
             mainButton.enable();
-            $scope.isSubmitDisabled = false;
+            document.getElementById('submit').classList.remove('disabled');
           } else {
             mainButton.disable();
-            $scope.isSubmitDisabled = true;
+            document.getElementById('submit').classList.add('disabled');
           }
         });
 
@@ -212,13 +205,16 @@
         mainButton.disable();
         mainButton.show();
 
+        // Dynamic height adjustment for mobile keyboards
+        function adjustHeight() {
+          document.body.style.height = `${window.innerHeight}px`;
+        }
+
+        window.addEventListener('resize', adjustHeight);
+        adjustHeight(); // Call on load
+
         // Ensure full expansion in the Telegram app
         window.Telegram.WebApp.expand();
-
-        // Handle dynamic resizing for mobile keyboards
-        window.addEventListener("resize", function () {
-          document.body.style.height = window.innerHeight + "px";
-        });
       });
     </script>
   </head>
@@ -226,7 +222,7 @@
     <div class="container">
       <h1>User Information</h1>
       <label for="name">Nombre:</label>
-      <input type="text" id="name" ng-model="userInfo.name" placeholder="Enter your name">
+      <input type="text" id="name" ng-model="userInfo.name" placeholder="Ponga como quieres que te llame">
       <label for="age">Edad:</label>
       <input type="number" id="age" ng-model="userInfo.age" placeholder="Enter your age">
       <label for="sports">Habitos a mantener:</label>
@@ -252,7 +248,7 @@
         <label for="goal3">Objetivo 3:</label>
         <input type="text" id="goal3" ng-model="userInfo.goals.goal3" placeholder="Enter your third goal">
       </div>
-      <button id="submit" ng-disabled="isSubmitDisabled">Completar registro</button>
+      <button id="submit" class="disabled">Completar registro</button>
     </div>
   </body>
 </html>
