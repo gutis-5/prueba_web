@@ -8,16 +8,19 @@
   <!-- Load AngularJS -->
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
   <style>
-    body {
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
       font-family: Arial, sans-serif;
       background: #f5f5f5;
       color: #333;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      box-sizing: border-box;
+    }
+    .scrollable-container {
+      height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
     }
     .container {
       background: #fff;
@@ -26,6 +29,7 @@
       width: calc(100% - 40px);
       max-width: 400px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin: 0 auto;
     }
     .container h1 {
       text-align: center;
@@ -82,31 +86,33 @@
   </style>
 </head>
 <body ng-controller="CustomUIController">
-  <div class="container">
-    <h1>User Information</h1>
-    <label for="name">Nombre:</label>
-    <input type="text" id="name" ng-model="userInfo.name" placeholder="Enter your name">
+  <div class="scrollable-container">
+    <div class="container">
+      <h1>User Information</h1>
+      <label for="name">Nombre:</label>
+      <input type="text" id="name" ng-model="userInfo.name" placeholder="Enter your name">
 
-    <label for="age">Edad:</label>
-    <input type="number" id="age" ng-model="userInfo.age" placeholder="Enter your age">
+      <label for="age">Edad:</label>
+      <input type="number" id="age" ng-model="userInfo.age" placeholder="Enter your age">
 
-    <label for="sports">Habitos a mantener:</label>
-    <input type="text" id="sports" ng-model="newSport" placeholder="Enter a habit">
-    <button ng-click="addSport()">Añadir habito</button>
-    <div class="sports-container">
-      <ul>
-        <li ng-repeat="sport in userInfo.sports track by $index">
-          {{ sport }} <button ng-click="removeSport($index)">x</button>
-        </li>
-      </ul>
+      <label for="sports">Habitos a mantener:</label>
+      <input type="text" id="sports" ng-model="newSport" placeholder="Enter a habit">
+      <button ng-click="addSport()">Añadir habito</button>
+      <div class="sports-container">
+        <ul>
+          <li ng-repeat="sport in userInfo.sports track by $index">
+            {{ sport }} <button ng-click="removeSport($index)">x</button>
+          </li>
+        </ul>
+      </div>
+
+      <label for="goals">Objetivos:</label>
+      <input type="text" id="goal1" ng-model="userInfo.goals[0]" placeholder="Primer objetivo">
+      <input type="text" id="goal2" ng-model="userInfo.goals[1]" placeholder="Segundo objetivo">
+      <input type="text" id="goal3" ng-model="userInfo.goals[2]" placeholder="Tercer objetivo">
+
+      <button id="submit" ng-click="submit()">Completar registro</button>
     </div>
-
-    <label for="goals">Objetivos:</label>
-    <input type="text" id="goal1" ng-model="userInfo.goals[0]" placeholder="Primer objetivo">
-    <input type="text" id="goal2" ng-model="userInfo.goals[1]" placeholder="Segundo objetivo">
-    <input type="text" id="goal3" ng-model="userInfo.goals[2]" placeholder="Tercer objetivo">
-
-    <button id="submit" ng-click="submit()">Completar registro</button>
   </div>
 
   <script>
@@ -142,6 +148,14 @@
         mainButton.show();
         mainButton.onClick($scope.submit);
       });
+
+    function adjustHeight() {
+      const container = document.querySelector('.scrollable-container');
+      container.style.height = `${window.innerHeight}px`;
+    }
+
+    window.addEventListener('load', adjustHeight);
+    window.addEventListener('resize', adjustHeight);
   </script>
 </body>
 </html>
