@@ -197,7 +197,7 @@
     });
 
     // Define action on button click
-    mainButton.text = "Submit Information";
+    mainButton.text = "Completar registro";
     mainButton.onClick(function () {
       if ($scope.isFormValid()) {
         window.Telegram.WebApp.sendData(JSON.stringify($scope.userInfo));
