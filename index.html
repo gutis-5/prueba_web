@@ -87,36 +87,68 @@
       }
     </style>
     <script>
-      angular.module("custom-webapp-ui", []).controller('CustomUIController', function CustomUIController($scope) {
-        $scope.userInfo = {
-          name: "",
-          age: "",
-          habits: [],
-          goals: {
-            goal1: "",
-            goal2: "",
-            goal3: ""
-          }
-        };
+  angular.module("custom-webapp-ui", []).controller('CustomUIController', function CustomUIController($scope) {
+    $scope.userInfo = {
+      name: "",
+      age: "",
+      habits: [],
+      goals: {
+        goal1: "",
+        goal2: "",
+        goal3: ""
+      }
+    };
+    $scope.newHabit = "";
+
+    $scope.addHabit = function () {
+      if ($scope.newHabit.trim()) {
+        $scope.userInfo.habits.push($scope.newHabit.trim());
         $scope.newHabit = "";
-        $scope.addHabit = function () {
-          if ($scope.newHabit.trim()) {
-            $scope.userInfo.habits.push($scope.newHabit.trim());
-            $scope.newHabit = "";
-          }
-        };
-        $scope.removeHabit = function (index) {
-          $scope.userInfo.habits.splice(index, 1);
-        };
-        const mainButton = window.Telegram.WebApp.MainButton;
-        mainButton.text = "Submit Information";
+      }
+    };
+
+    $scope.removeHabit = function (index) {
+      $scope.userInfo.habits.splice(index, 1);
+    };
+
+    const mainButton = window.Telegram.WebApp.MainButton;
+    mainButton.text = "Completar registro";
+    mainButton.disable(); // Deshabilitado por defecto
+    mainButton.show();
+
+    // Función para verificar que todos los campos estén llenos
+    $scope.isFormComplete = function () {
+      const { name, age, habits, goals } = $scope.userInfo;
+      return (
+        name.trim() &&
+        age &&
+        habits.length > 0 &&
+        goals.goal1.trim() &&
+        goals.goal2.trim() &&
+        goals.goal3.trim()
+      );
+    };
+
+    // Observar cambios en los datos del formulario
+    $scope.$watch('userInfo', function () {
+      if ($scope.isFormComplete()) {
         mainButton.enable();
-        mainButton.show();
-        mainButton.onClick(function () {
-          window.Telegram.WebApp.sendData(JSON.stringify($scope.userInfo));
-        });
-      });
-    </script>
+      } else {
+        mainButton.disable();
+      }
+    }, true);
+
+    // Manejar el clic del botón principal
+    mainButton.onClick(function () {
+      if ($scope.isFormComplete()) {
+        window.Telegram.WebApp.sendData(JSON.stringify($scope.userInfo));
+      } else {
+        alert("Por favor, completa todos los campos antes de enviar.");
+      }
+    });
+  });
+</script>
+
   </head>
   <body ng-controller="CustomUIController">
     <div class="container">
@@ -152,7 +184,6 @@
         <input type="text" id="goal3" ng-model="userInfo.goals.goal3" placeholder="Escribe tu tercer objetivo">
       </div>
 
-      <button id="submit">Enviar Información</button>
     </div>
   </body>
 </html>
