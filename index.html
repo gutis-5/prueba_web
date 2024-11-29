@@ -1,177 +1,125 @@
+<!DOCTYPE html>
 <html ng-app="custom-webapp-ui" lang="en">
-  <head>
-    <!-- Load the Telegram Library -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Load the AngularJS Library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-      /* General body styling */
-      body {
-        width: 100vw;
-        height: 100%;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        box-sizing: border-box;
-      }
-      
-      html, body {
-        height: 100%;
-        min-height: 100vh;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      
-      body {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-      }
+<head>
+  <!-- Viewport settings for responsive design -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- Load the Telegram Library -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Load AngularJS -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+    .container {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      width: calc(100% - 40px);
+      max-width: 400px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .container h1 {
+      text-align: center;
+      color: #419144;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    .sports-container ul {
+      padding: 0;
+      list-style: none;
+    }
+    .sports-container ul li {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+      padding: 8px;
+      background: #f1f1f1;
+      border-radius: 5px;
+    }
+    .sports-container ul li button {
+      background: #e74c3c;
+      border: none;
+      color: white;
+      border-radius: 50%;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #419144;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #357a38;
+    }
+  </style>
+</head>
+<body ng-controller="CustomUIController">
+  <div class="container">
+    <h1>User Information</h1>
+    <label for="name">Nombre:</label>
+    <input type="text" id="name" ng-model="userInfo.name" placeholder="Enter your name">
 
+    <label for="age">Edad:</label>
+    <input type="number" id="age" ng-model="userInfo.age" placeholder="Enter your age">
 
+    <label for="sports">Habitos a mantener:</label>
+    <input type="text" id="sports" ng-model="newSport" placeholder="Enter a habit">
+    <button ng-click="addSport()">Añadir habito</button>
+    <div class="sports-container">
+      <ul>
+        <li ng-repeat="sport in userInfo.sports track by $index">
+          {{ sport }} <button ng-click="removeSport($index)">x</button>
+        </li>
+      </ul>
+    </div>
 
-      /* Container styling for the form */
-      .container {
-        background: #f3faf3;
-        border: 2px solid #b6d3b7;
-        border-radius: 12px;
-        padding: 20px;
-        width: 90%;
-        max-width: 400px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        box-sizing: border-box;
-      }
+    <label for="goals">Objetivos:</label>
+    <input type="text" id="goal1" ng-model="userInfo.goals[0]" placeholder="Primer objetivo">
+    <input type="text" id="goal2" ng-model="userInfo.goals[1]" placeholder="Segundo objetivo">
+    <input type="text" id="goal3" ng-model="userInfo.goals[2]" placeholder="Tercer objetivo">
 
-      .container h1 {
-        text-align: center;
-        margin-bottom: 20px;
-        color: #419144;
-        font-size: 1.8em;
-      }
+    <button id="submit" ng-click="submit()">Completar registro</button>
+  </div>
 
-      label {
-        display: block;
-        margin-top: 15px;
-        font-weight: bold;
-        color: #333;
-        font-size: 1em;
-      }
-
-      input[type="text"], input[type="number"] {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        margin-top: 5px;
-        font-size: 1em;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-      }
-
-      input[type="text"]:focus, input[type="number"]:focus {
-        outline: none;
-        border-color: #4caf50;
-        box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-      }
-
-      .sports-container ul {
-        padding: 0;
-        margin: 10px 0 0;
-        list-style: none;
-      }
-
-      .sports-container ul li {
-        background: #f1f8e9;
-        padding: 8px 12px;
-        margin-bottom: 5px;
-        border-radius: 8px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.9em;
-      }
-
-      .sports-container ul li button {
-        background: #f08a83;
-        border: none;
-        color: white;
-        border-radius: 50%;
-        cursor: pointer;
-        padding: 5px 10px;
-        font-size: 0.9em;
-      }
-
-      button.add-btn, button#submit {
-        background: #446ad4;
-        border: none;
-        color: white;
-        padding: 10px;
-        border-radius: 8px;
-        cursor: pointer;
-        margin-top: 10px;
-        display: block;
-        width: 100%;
-        font-size: 1em;
-      }
-
-      button.add-btn:hover, button#submit:hover {
-        background: #31306d;
-      }
-
-      /* Responsive adjustments */
-      @media (max-width: 768px) {
-        body {
-          padding: 10px;
-        }
-
-        .container {
-          max-height: 100%;
-          overflow: hidden;
-        }
-
-
-        .container h1 {
-          font-size: 1.5em;
-        }
-
-        label {
-          font-size: 0.9em;
-        }
-
-        input[type="text"], input[type="number"] {
-          font-size: 0.9em;
-        }
-
-        button.add-btn, button#submit {
-          font-size: 0.9em;
-        }
-
-        .sports-container ul li {
-          font-size: 0.85em;
-        }
-
-        .sports-container ul li button {
-          font-size: 0.8em;
-        }
-      }
-    </style>
-    
-    <script>
-      angular.module("custom-webapp-ui", []).controller('CustomUIController', function CustomUIController($scope) {
+  <script>
+    angular.module("custom-webapp-ui", [])
+      .controller("CustomUIController", function ($scope) {
         $scope.userInfo = {
           name: "",
           age: "",
           sports: [],
-          goals: { goal1: "", goal2: "", goal3: "" }
+          goals: ["", "", ""]
         };
-
         $scope.newSport = "";
+
         $scope.addSport = function () {
           if ($scope.newSport.trim()) {
             $scope.userInfo.sports.push($scope.newSport.trim());
@@ -183,91 +131,17 @@
           $scope.userInfo.sports.splice(index, 1);
         };
 
-        $scope.isFormValid = function () {
-          const { name, age, sports, goals } = $scope.userInfo;
-          return (
-            name.trim() !== "" &&
-            age !== "" &&
-            sports.length > 0 &&
-            goals.goal1.trim() !== "" &&
-            goals.goal2.trim() !== "" &&
-            goals.goal3.trim() !== ""
-          );
+        $scope.submit = function () {
+          const data = JSON.stringify($scope.userInfo);
+          window.Telegram.WebApp.sendData(data);
         };
 
         const mainButton = window.Telegram.WebApp.MainButton;
-        $scope.$watch($scope.isFormValid, function (isValid) {
-          if (isValid) {
-            mainButton.enable();
-          } else {
-            mainButton.disable();
-          }
-        });
-
-        mainButton.text = "Completar registro";
-        mainButton.onClick(function () {
-          if ($scope.isFormValid()) {
-            window.Telegram.WebApp.sendData(JSON.stringify($scope.userInfo));
-          }
-        });
-
-        mainButton.disable();
+        mainButton.text = "Submit Information";
+        mainButton.enable();
         mainButton.show();
-
-        // Ensure full expansion in the Telegram app
-        window.Telegram.WebApp.expand();
+        mainButton.onClick($scope.submit);
       });
-    </script>
-
-    <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const container = document.querySelector('.container');
-    const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
-
-    inputs.forEach(input => {
-      input.addEventListener('focus', () => {
-        container.style.height = 'auto';
-        container.style.overflowY = 'scroll';
-      });
-
-      input.addEventListener('blur', () => {
-        container.style.height = '';
-        container.style.overflowY = '';
-      });
-    });
-  });
-</script>
-  </head>
-  <body ng-controller="CustomUIController">
-    <div class="container">
-      <h1>User Information</h1>
-      <label for="name">Nombre:</label>
-      <input type="text" id="name" ng-model="userInfo.name" placeholder="Enter your nombre">
-      <label for="age">Edad:</label>
-      <input type="number" id="age" ng-model="userInfo.age" placeholder="Enter your age">
-      <label for="sports">Habitos a mantener:</label>
-      <input type="text" id="sports" ng-model="newSport" placeholder="Enter a sport">
-      <button class="add-btn" ng-click="addSport()">Añadir habito</button>
-      <div class="sports-container">
-        <ul>
-          <li ng-repeat="sport in userInfo.sports track by $index">
-            {{sport}} <button ng-click="removeSport($index)">x</button>
-          </li>
-        </ul>
-      </div>
-      <label>Objetivos:</label>
-      <div>
-        <label for="goal1">Objetivo 1:</label>
-        <input type="text" id="goal1" ng-model="userInfo.goals.goal1" placeholder="Enter your first goal">
-      </div>
-      <div>
-        <label for="goal2">Objetivo 2:</label>
-        <input type="text" id="goal2" ng-model="userInfo.goals.goal2" placeholder="Enter your second goal">
-      </div>
-      <div>
-        <label for="goal3">Objetivo 3:</label>
-        <input type="text" id="goal3" ng-model="userInfo.goals.goal3" placeholder="Enter your third goal">
-      </div>
-    </div>
-  </body>
+  </script>
+</body>
 </html>
