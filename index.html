@@ -98,20 +98,20 @@
 <body ng-controller="CustomUIController">
   <div class="scrollable-container">
     <div class="container">
-      <h1>Registo HABITS.IO P1</h1>
+      <h1>Registo HABITS.IO</h1>
       <label for="name">Nombre:</label>
       <input type="text" id="name" ng-model="userInfo.name" placeholder="Indica como quieres que te llamemos">
 
       <label for="age">Edad:</label>
       <input type="number" id="age" ng-model="userInfo.age" placeholder="¿Nos dices tu edad?🙂">
 
-      <label for="sports">Habitos a mantener:</label>
-      <input type="text" id="sports" ng-model="newSport" placeholder="¡Vamos a mejorar esos hábitos!">
-      <button ng-click="addSport()">Añadir habito</button>
+      <label for="habits">Hábitos a mantener:</label>
+      <input type="text" id="habits" ng-model="newHabit" placeholder="¡Vamos a mejorar esos hábitos!">
+      <button ng-click="addHabit()">Añadir hábito</button>
       <div class="sports-container">
         <ul>
-          <li ng-repeat="sport in userInfo.habits track by $index">
-            {{ sport }} <button ng-click="removeSport($index)">x</button>
+          <li ng-repeat="habit in userInfo.habits track by $index">
+            {{ habit }} <button ng-click="removeHabit($index)">x</button>
           </li>
         </ul>
       </div>
@@ -130,22 +130,20 @@
         $scope.userInfo = {
           name: "",
           age: "",
-          habits: [],
+          habits: [], // Cambiar sports a habits
           goals: ["", "", ""]
         };
-        $scope.newSport = "";
+        $scope.newHabit = ""; // Cambiar newSport a newHabit
 
-        $scope.addSport = function () {
-          if ($scope.newSport && $scope.newSport.trim()) {
-            if (!$scope.userInfo.habits.includes($scope.newSport.trim())) {
-              $scope.userInfo.habits.push($scope.newSport.trim());
-            }
-            $scope.newSport = ""; // Limpia el campo después de añadir
+        $scope.addHabit = function () { // Cambiar addSport a addHabit
+          if ($scope.newHabit.trim()) {
+            $scope.userInfo.habits.push($scope.newHabit.trim()); // Usar habits
+            $scope.newHabit = "";
           }
         };
 
-        $scope.removeSport = function (index) {
-          $scope.userInfo.habits.splice(index, 1);
+        $scope.removeHabit = function (index) { // Cambiar removeSport a removeHabit
+          $scope.userInfo.habits.splice(index, 1); // Usar habits
         };
 
         $scope.submit = function () {
@@ -153,27 +151,12 @@
           window.Telegram.WebApp.sendData(data);
         };
 
-        $scope.isFormValid = function () {
-          return $scope.userInfo.name.trim() &&
-                 $scope.userInfo.age &&
-                 $scope.userInfo.habits.length > 0 &&
-                 $scope.userInfo.goals.every(goal => goal.trim());
-        };
-        
-        // Actualizar estado del botón en cada cambio
-        $scope.$watchGroup(
-          ['userInfo.name', 'userInfo.age', 'userInfo.habits.length', 'userInfo.goals'],
-          function () {
-            const mainButton = window.Telegram.WebApp.MainButton;
-            if ($scope.isFormValid()) {
-              mainButton.enable();
-              mainButton.classList.remove('disabled');
-            } else {
-              mainButton.disable();
-              mainButton.classList.add('disabled');
-            }
-          }
-        );
+        const mainButton = window.Telegram.WebApp.MainButton;
+        mainButton.text = "💪 Completar registro 💪";
+        mainButton.enable();
+        mainButton.show();
+        mainButton.onClick($scope.submit);
+      });
 
     let lastHeight = window.innerHeight;
 
