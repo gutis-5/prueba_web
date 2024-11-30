@@ -98,7 +98,7 @@
 <body ng-controller="CustomUIController">
   <div class="scrollable-container">
     <div class="container">
-      <h1>Registo HABITS.IO</h1>
+      <h1>Registo HABITS.IO B1</h1>
       <label for="name">Nombre:</label>
       <input type="text" id="name" ng-model="userInfo.name" placeholder="Indica como quieres que te llamemos">
 
@@ -159,7 +159,7 @@
         // Verificar si todos los campos están completos
         $scope.isFormComplete = function () {
           return $scope.userInfo.name.trim() &&
-            $scope.userInfo.age.trim() &&
+            $scope.userInfo.age &&
             $scope.userInfo.habits.length > 0 &&
             $scope.userInfo.goals.every(goal => goal.trim());
         };
@@ -180,7 +180,14 @@
         };
   
         // Monitorear cambios en el formulario
-        $scope.$watch("userInfo", $scope.updateMainButton, true);
+        $scope.$watchGroup([
+          "userInfo.name",
+          "userInfo.age",
+          "userInfo.habits.length",
+          "userInfo.goals[0]",
+          "userInfo.goals[1]",
+          "userInfo.goals[2]"
+        ], $scope.updateMainButton);
   
         // Inicializar el botón principal
         const mainButton = window.Telegram.WebApp.MainButton;
@@ -190,6 +197,7 @@
         mainButton.show();
       });
   </script>
+
 
 </body>
 </html>
