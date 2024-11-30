@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="custom-webapp-ui" lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
   <style>
@@ -94,13 +94,13 @@
     <div class="container">
       <h1>Registo HABTIS.IO</h1>
       <label for="name">Nombre:</label>
-      <input type="text" id="name" ng-model="userInfo.name" placeholder="Enter your nombre">
+      <input type="text" id="name" ng-model="userInfo.name" placeholder="Indica como quieres que te llamemos">
 
       <label for="age">Edad:</label>
-      <input type="number" id="age" ng-model="userInfo.age" placeholder="Enter your age">
+      <input type="number" id="age" ng-model="userInfo.age" placeholder="¿Nos dices tu edad?🙂">
 
       <label for="sports">Habitos a mantener:</label>
-      <input type="text" id="sports" ng-model="newSport" placeholder="Enter a habit">
+      <input type="text" id="sports" ng-model="newSport" placeholder="¡Vamos a mejorar esos hábitos!">
       <button ng-click="addSport()">Añadir habito</button>
       <div class="sports-container">
         <ul>
