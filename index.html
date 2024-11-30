@@ -136,9 +136,11 @@
         $scope.newSport = "";
 
         $scope.addSport = function () {
-          if ($scope.newSport.trim()) {
-            $scope.userInfo.habits.push($scope.newSport.trim());
-            $scope.newSport = "";
+          if ($scope.newSport && $scope.newSport.trim()) {
+            if (!$scope.userInfo.habits.includes($scope.newSport.trim())) {
+              $scope.userInfo.habits.push($scope.newSport.trim());
+            }
+            $scope.newSport = ""; // Limpia el campo después de añadir
           }
         };
 
