@@ -92,7 +92,7 @@
 <body ng-controller="CustomUIController">
   <div class="scrollable-container">
     <div class="container">
-      <h1>Registo HABTIS.IO</h1>
+      <h1>Registo HABITS.IO</h1>
       <label for="name">Nombre:</label>
       <input type="text" id="name" ng-model="userInfo.name" placeholder="Indica como quieres que te llamemos">
 
@@ -115,7 +115,6 @@
       <input type="text" id="goal2" ng-model="userInfo.goals[1]" placeholder="Segundo objetivo">
       <input type="text" id="goal3" ng-model="userInfo.goals[2]" placeholder="Tercer objetivo">
 
-      <button id="submit" ng-click="submit()">Completar registro</button>
     </div>
   </div>
 
@@ -125,7 +124,7 @@
         $scope.userInfo = {
           name: "",
           age: "",
-          sports: [],
+          habits: [],
           goals: ["", "", ""]
         };
         $scope.newSport = "";
@@ -147,7 +146,7 @@
         };
 
         const mainButton = window.Telegram.WebApp.MainButton;
-        mainButton.text = "Submit Information";
+        mainButton.text = "💪 Completar registro 💪";
         mainButton.enable();
         mainButton.show();
         mainButton.onClick($scope.submit);
