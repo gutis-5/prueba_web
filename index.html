@@ -87,6 +87,12 @@
     button:hover {
       background: #357a38;
     }
+
+    button.disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
   </style>
 </head>
 <body ng-controller="CustomUIController">
@@ -104,7 +110,7 @@
       <button ng-click="addSport()">Añadir habito</button>
       <div class="sports-container">
         <ul>
-          <li ng-repeat="sport in userInfo.sports track by $index">
+          <li ng-repeat="sport in userInfo.habits track by $index">
             {{ sport }} <button ng-click="removeSport($index)">x</button>
           </li>
         </ul>
@@ -145,12 +151,27 @@
           window.Telegram.WebApp.sendData(data);
         };
 
-        const mainButton = window.Telegram.WebApp.MainButton;
-        mainButton.text = "💪 Completar registro 💪";
-        mainButton.enable();
-        mainButton.show();
-        mainButton.onClick($scope.submit);
-      });
+        $scope.isFormValid = function () {
+          return $scope.userInfo.name.trim() &&
+                 $scope.userInfo.age &&
+                 $scope.userInfo.habits.length > 0 &&
+                 $scope.userInfo.goals.every(goal => goal.trim());
+        };
+        
+        // Actualizar estado del botón en cada cambio
+        $scope.$watchGroup(
+          ['userInfo.name', 'userInfo.age', 'userInfo.habits.length', 'userInfo.goals'],
+          function () {
+            const mainButton = window.Telegram.WebApp.MainButton;
+            if ($scope.isFormValid()) {
+              mainButton.enable();
+              mainButton.classList.remove('disabled');
+            } else {
+              mainButton.disable();
+              mainButton.classList.add('disabled');
+            }
+          }
+        );
 
     let lastHeight = window.innerHeight;
 
