@@ -98,7 +98,7 @@
 <body ng-controller="CustomUIController">
   <div class="scrollable-container">
     <div class="container">
-      <h1>Registo HABITS.IO B3</h1>
+      <h1>Registo HABITS.IO B4</h1>
       <label for="name">Nombre:</label>
       <input type="text" id="name" ng-model="userInfo.name" placeholder="Indica como quieres que te llamemos">
 
@@ -172,6 +172,7 @@
             mainButton.text = "💪 Completar registro 💪";
             mainButton.enable();
             mainButton.color = "#419144"; // Color verde
+            mainButton.onClick($scope.submit);
           } else {
             mainButton.text = "🚫 Completa todos los campos 🚫";
             mainButton.disable();
@@ -196,11 +197,6 @@
         mainButton.color = "#ccc"; // Color gris
         mainButton.show();
       });
-
-    // Registrar el evento de clic para el botón principal
-    window.Telegram.WebApp.onEvent('mainButtonClicked', function () {
-      $scope.submit(); // Llamar a la función de envío
-    });
 
   </script>
 
