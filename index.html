@@ -167,12 +167,14 @@
         // Actualizar el botón principal
         $scope.updateMainButton = function () {
           const mainButton = window.Telegram.WebApp.MainButton;
-  
+        
           if ($scope.isFormComplete()) {
             mainButton.text = "💪 Completar registro 💪";
             mainButton.enable();
             mainButton.color = "#419144"; // Color verde
-            mainButton.onClick($scope.submit);
+            if (!mainButton.isActive) { // Asegurarse de que no se configure el evento varias veces
+              mainButton.onClick($scope.submit);
+            }
           } else {
             mainButton.text = "🚫 Completa todos los campos 🚫";
             mainButton.disable();
