@@ -131,13 +131,13 @@
 
         $scope.addSport = function () {
           if ($scope.newSport.trim()) {
-            $scope.userInfo.sports.push($scope.newSport.trim());
+            $scope.userInfo.habits.push($scope.newSport.trim());
             $scope.newSport = "";
           }
         };
 
         $scope.removeSport = function (index) {
-          $scope.userInfo.sports.splice(index, 1);
+          $scope.userInfo.habits.splice(index, 1);
         };
 
         $scope.submit = function () {
