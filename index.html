@@ -130,47 +130,66 @@
         $scope.userInfo = {
           name: "",
           age: "",
-          habits: [], // Cambiar sports a habits
+          habits: [],
           goals: ["", "", ""]
         };
-        $scope.newHabit = ""; // Cambiar newSport a newHabit
-
-        $scope.addHabit = function () { // Cambiar addSport a addHabit
+        $scope.newHabit = "";
+  
+        // Función para añadir un hábito
+        $scope.addHabit = function () {
           if ($scope.newHabit.trim()) {
-            $scope.userInfo.habits.push($scope.newHabit.trim()); // Usar habits
+            $scope.userInfo.habits.push($scope.newHabit.trim());
             $scope.newHabit = "";
+            $scope.updateMainButton();
           }
         };
-
-        $scope.removeHabit = function (index) { // Cambiar removeSport a removeHabit
-          $scope.userInfo.habits.splice(index, 1); // Usar habits
+  
+        // Función para eliminar un hábito
+        $scope.removeHabit = function (index) {
+          $scope.userInfo.habits.splice(index, 1);
+          $scope.updateMainButton();
         };
-
+  
+        // Función para enviar datos al WebApp
         $scope.submit = function () {
           const data = JSON.stringify($scope.userInfo);
           window.Telegram.WebApp.sendData(data);
         };
-
+  
+        // Verificar si todos los campos están completos
+        $scope.isFormComplete = function () {
+          return $scope.userInfo.name.trim() &&
+            $scope.userInfo.age.trim() &&
+            $scope.userInfo.habits.length > 0 &&
+            $scope.userInfo.goals.every(goal => goal.trim());
+        };
+  
+        // Actualizar el botón principal
+        $scope.updateMainButton = function () {
+          const mainButton = window.Telegram.WebApp.MainButton;
+  
+          if ($scope.isFormComplete()) {
+            mainButton.text = "💪 Completar registro 💪";
+            mainButton.enable();
+            mainButton.color = "#419144"; // Color verde
+          } else {
+            mainButton.text = "🚫 Completa todos los campos 🚫";
+            mainButton.disable();
+            mainButton.color = "#ccc"; // Color gris
+          }
+        };
+  
+        // Monitorear cambios en el formulario
+        $scope.$watch("userInfo", $scope.updateMainButton, true);
+  
+        // Inicializar el botón principal
         const mainButton = window.Telegram.WebApp.MainButton;
-        mainButton.text = "💪 Completar registro 💪";
-        mainButton.enable();
+        mainButton.text = "🚫 Completa todos los campos 🚫";
+        mainButton.disable();
+        mainButton.color = "#ccc"; // Color gris
         mainButton.show();
-        mainButton.onClick($scope.submit);
       });
-
-    let lastHeight = window.innerHeight;
-
-    function adjustHeight() {
-      const currentHeight = window.innerHeight;
-      if (Math.abs(currentHeight - lastHeight) > 50) { // Update only if height changes significantly
-        const container = document.querySelector('.scrollable-container');
-        container.style.height = `${currentHeight}px`;
-        lastHeight = currentHeight;
-      }
-    }
-
-    window.addEventListener('load', adjustHeight);
-    window.addEventListener('resize', adjustHeight);
   </script>
+
 </body>
 </html>
