@@ -2,13 +2,10 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Gestor de Hábitos con Objetivos y Emojis</title>
-  <!-- Viewport que fuerza el modo responsive -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-
-  <!-- Librería de Telegram WebApp -->
+  <!-- Ajuste de viewport para iPhone (height=device-height ayuda en algunos casos a no recortar scroll con teclado). -->
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
+  <title>🛫 ¡Despega tus Hábitos! 🚀</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
   <style>
     /* RESETEO Y BASE */
     * {
@@ -17,29 +14,33 @@
       padding: 0;
     }
     html, body {
+      /* Para iPhone: "height=device-height" + flex-col + min-height puede mejorar la scroll con teclado */
       height: 100%;
       min-height: 100vh;
-      /* Para que no haya salto cuando aparece el teclado en iOS */
       background-color: #f9f9f9;
       font-family: sans-serif;
       -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
     }
     body {
-      /* Al usar min-height:100vh, nos aseguramos que ocupe toda la pantalla y
-         permita scroll cuando aparece el teclado. */
       display: flex;
       flex-direction: column;
     }
 
     main {
-      flex: 1;  /* Esto hace que el contenido crezca y sea scrollable */
+      flex: 1;
       padding: 16px;
-      overflow-y: auto; /* Para que aparezca scroll si se necesita */
+      overflow-y: auto;
+      /* Espacio extra para que puedas scrollear y que el teclado no tape la parte de abajo */
+      padding-bottom: 200px; 
     }
 
+    /* TÍTULO vistoso con cohete doble */
     h1 {
+      text-align: center;
+      font-size: 1.8rem;
       margin-bottom: 1rem;
-      font-size: 1.3rem;
+      color: #f06292; /* mantenemos un color principal */
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
     }
 
     .input-group {
@@ -70,6 +71,8 @@
       margin-bottom: 10px;
       font-size: 1.1rem;
       font-weight: 600;
+      /* Quitar el color rosa, poner negro o gris oscuro */
+      color: #333;
     }
     #selectedHabitsList {
       font-size: 0.9rem;
@@ -77,9 +80,9 @@
       min-height: 20px;
     }
 
-    /* Acordeón */
+    /* ACORDEÓN con borde color #f06292 */
     .accordion {
-      border: 1px solid #eee;
+      border: 2px solid #f06292;
       border-radius: 8px;
       margin-bottom: 10px;
       overflow: hidden;
@@ -97,6 +100,7 @@
       margin: 0;
       font-size: 1rem;
       font-weight: 600;
+      color: #f06292;
     }
     .accordion-content {
       max-height: 0;
@@ -111,7 +115,6 @@
     /* Grid de hábitos - adaptado para distintas pantallas */
     .habit-list {
       display: grid;
-      /* En móviles muy pequeños: 1 columna, en pantallas medianas: 2 columnas, y en pantallas más grandes: 3 */
       grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       gap: 10px;
     }
@@ -152,7 +155,7 @@
 
     /* Campo para hábito personalizado con emoji */
     .custom-habit-wrapper {
-      grid-column: 1 / -1; /* Ocupa toda la fila */
+      grid-column: 1 / -1;
       display: flex;
       gap: 8px;
       align-items: center;
@@ -201,6 +204,8 @@
       margin-bottom: 10px;
       font-size: 1.1rem;
       font-weight: 600;
+      /* Quitar rosa */
+      color: #333;
     }
     #objetivosList {
       font-size: 0.9rem;
@@ -274,19 +279,32 @@
       padding: 0.8rem 1.5rem;
       cursor: pointer;
       font-size: 1rem;
-      margin-bottom: 20px; /* para separarlo del borde inferior */
+      display: block;
+      margin: 0 auto 40px auto; /* más espacio inferior */
     }
     .send-button:hover {
       background-color: #ec407a;
     }
 
-    /* Ajustes responsivos adicionales (breakpoints) */
+    /* Animación del cohete */
+    .rocket {
+      position: fixed;
+      bottom: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 3rem;
+      animation: rocketFly 2s ease-in forwards;
+      z-index: 9999;
+    }
+    @keyframes rocketFly {
+      0%   { bottom: -50px; }
+      100% { bottom: 100vh; }
+    }
+
+    /* Breakpoints */
     @media (min-width: 600px) {
       h1 {
-        font-size: 1.4rem;
-      }
-      .custom-emoji-input {
-        font-size: 1rem;
+        font-size: 2rem;
       }
     }
     @media (min-width: 768px) {
@@ -303,7 +321,8 @@
 </head>
 <body>
   <main>
-    <h1>Gestor de Hábitos con Objetivos y Emojis v1</h1>
+    <!-- Nuevo cohete "🛫" antes del título -->
+    <h1>🛫 ¡Despega tus Hábitos! 🚀</h1>
 
     <!-- Sección Nombre y Edad con asterisco -->
     <div class="input-group">
@@ -315,7 +334,7 @@
       <input type="number" id="edad" placeholder="Ingresa tu edad">
     </div>
 
-    <!-- Hábitos Registrados con asterisco en el título -->
+    <!-- Hábitos Registrados -->
     <div id="habitosSeleccionadosContainer">
       <h2>Hábitos registrados *</h2>
       <div id="selectedHabitsList">(vacío)</div>
@@ -350,7 +369,6 @@
             </div>
             <button class="plus-btn">+</button>
           </div>
-          <!-- Input emoji + input texto + botón Agregar -->
           <div class="custom-habit-wrapper">
             <input type="text" class="custom-emoji-input" placeholder="Emoji">
             <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
@@ -524,7 +542,7 @@
       const content = accordion.querySelector('.accordion-content');
       header.addEventListener('click', () => {
         const isOpen = content.classList.contains('open');
-        // Cerrar todos los paneles
+        // Cerrar todos los paneles primero
         document.querySelectorAll('.accordion-content').forEach(ac => {
           ac.classList.remove('open');
           ac.style.maxHeight = null;
@@ -619,16 +637,14 @@
           });
           contentDiv.appendChild(removeBtn);
 
-          row.appendChild(contentDiv);
-
-          // Frecuencia (por defecto 'semanal')
+          // Frecuencia
           const freqDiv = document.createElement('div');
           freqDiv.className = 'frequency-row';
           const freqSelect = document.createElement('select');
           freqSelect.className = 'frequency-select';
           freqSelect.innerHTML = `
             <option value="diaria">Diaria</option>
-            <option value="semanal" selected>Semanal</option>
+            <option value="semanal">Semanal</option>
             <option value="mensual">Mensual</option>
           `;
           freqSelect.value = objectivesMap[habitName].freq;
@@ -637,6 +653,7 @@
           });
           freqDiv.appendChild(freqSelect);
 
+          row.appendChild(contentDiv);
           row.appendChild(freqDiv);
         }
 
@@ -726,7 +743,7 @@
       });
     });
 
-    // Botón Enviar
+    // Botón Enviar + ANIMACIÓN DE COHETE
     const btnEnviar = document.getElementById('btnEnviar');
     btnEnviar.addEventListener('click', () => {
       const nombre = document.getElementById('nombre').value.trim();
@@ -746,7 +763,6 @@
         goals[habit] = data;
       });
 
-      // Ajustamos a lo que el .py espera
       const payload = {
         name: nombre,
         age: edad,
@@ -754,13 +770,23 @@
         goals: goals
       };
 
-      // Envía al bot via WebAppData
       if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
         Telegram.WebApp.sendData(JSON.stringify(payload));
       }
 
       console.log('Datos a enviar:', payload);
       alert('Se han enviado los datos: ' + JSON.stringify(payload));
+
+      // Crear cohete animado
+      const rocket = document.createElement('div');
+      rocket.classList.add('rocket');
+      rocket.textContent = '🚀';
+      document.body.appendChild(rocket);
+
+      // Quitar el cohete tras 2.5s
+      setTimeout(() => {
+        rocket.remove();
+      }, 2500);
     });
 
     refreshUI();
