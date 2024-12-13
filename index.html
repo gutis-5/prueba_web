@@ -1,19 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
+
+  <!-- IMPORTANTE: Para que la web sea amigable en móviles -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Gestor de Hábitos con Objetivos y Emojis</title>
-  <!-- IMPORTANTE: Carga la librería de Telegram WebApp para poder usar Telegram.WebApp.sendData() -->
+  <!-- Carga la librería de Telegram WebApp -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
   <style>
+    /* Reseteo básico */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: sans-serif;
-      margin: 20px;
       background-color: #f9f9f9;
+      min-height: 100vh; /* Para forzar scroll y que no se corte contenido en móvil */
+      display: flex;
+      flex-direction: column;
+      padding: 20px; /* Margen interno */
     }
+
     h1 {
       margin-bottom: 1rem;
+      font-size: 1.5rem;
+      text-align: center;
     }
+
     .input-group {
       margin-bottom: 15px;
     }
@@ -80,7 +99,7 @@
       border-top: 1px solid #eee;
     }
 
-    /* Grid de 3 columnas para los hábitos */
+    /* Grid de hábitos */
     .habit-list {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -200,7 +219,6 @@
     .objetivo-plus-btn:hover {
       background-color: #ec407a;
     }
-    /* Contenedor del input y boton "Quitar" */
     .objetivo-content {
       display: flex;
       align-items: center;
@@ -226,7 +244,6 @@
     .remove-objetivo-btn:hover {
       background-color: #999;
     }
-
     .frequency-row {
       margin-left: 30px; /* indentado */
       margin-top: 5px;
@@ -247,16 +264,40 @@
       padding: 0.8rem 1.5rem;
       cursor: pointer;
       font-size: 1rem;
+      margin: 0 auto; /* centrar */
+      display: block;
+      margin-bottom: 20px;
     }
     .send-button:hover {
       background-color: #ec407a;
     }
+
+    /* Media queries para hacerlo más amigable en dispositivos pequeños */
+    @media (max-width: 768px) {
+      .habit-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .habit-list {
+        grid-template-columns: 1fr; /* Una sola columna en pantallas muy pequeñas */
+      }
+      .custom-habit-wrapper {
+        flex-direction: column;
+      }
+      .custom-emoji-input {
+        width: 100%;
+      }
+      .custom-habit-btn {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Gestor de Hábitos con Objetivos y Emojis</h1>
+  <h1>Gestor de Hábitos con Objetivos y Emojis 2</h1>
 
-  <!-- Sección Nombre y Edad con asterisco -->
+  <!-- Sección Nombre y Edad -->
   <div class="input-group">
     <label for="nombre">Nombre *</label>
     <input type="text" id="nombre" placeholder="Ingresa tu nombre">
@@ -266,7 +307,7 @@
     <input type="number" id="edad" placeholder="Ingresa tu edad">
   </div>
 
-  <!-- Hábitos Registrados con asterisco en el título -->
+  <!-- Hábitos Registrados -->
   <div id="habitosSeleccionadosContainer">
     <h2>Hábitos registrados *</h2>
     <div id="selectedHabitsList">(vacío)</div>
@@ -459,7 +500,7 @@
     </div>
   </div>
 
-  <!-- Sección de Objetivos (opcional, con un "+" para cada hábito) -->
+  <!-- Sección de Objetivos -->
   <div id="objetivosContainer">
     <h2>Objetivos</h2>
     <div id="objetivosList"></div>
@@ -474,12 +515,12 @@
       const content = accordion.querySelector('.accordion-content');
       header.addEventListener('click', () => {
         const isOpen = content.classList.contains('open');
-        // Cerrar todos los paneles
+        // Cerrar todos
         document.querySelectorAll('.accordion-content').forEach(ac => {
           ac.classList.remove('open');
           ac.style.maxHeight = null;
         });
-        // Abrir solo si estaba cerrado
+        // Abrir el que se clicó si estaba cerrado
         if(!isOpen) {
           content.classList.add('open');
           content.style.maxHeight = content.scrollHeight + 'px';
@@ -490,7 +531,6 @@
     const MAX_HABITS = 5;
     let selectedCount = 0;
 
-    // Mapeo para almacenar objetivo y frecuencia de cada hábito (freq por defecto: 'semanal')
     const objectivesMap = {};
     const togglesMap = {};
 
@@ -572,7 +612,7 @@
 
           row.appendChild(contentDiv);
 
-          // Frecuencia (por defecto 'semanal')
+          // Frecuencia
           const freqDiv = document.createElement('div');
           freqDiv.className = 'frequency-row';
           const freqSelect = document.createElement('select');
@@ -677,7 +717,7 @@
       });
     });
 
-    // Botón Enviar
+    // Botón Enviar: usar la API de Telegram WebApp
     const btnEnviar = document.getElementById('btnEnviar');
     btnEnviar.addEventListener('click', () => {
       const nombre = document.getElementById('nombre').value.trim();
@@ -691,14 +731,13 @@
       });
 
       // Recolectar objetivos/frecuencia
-      const goals = {}; // <-- se llamará 'goals' para coincidir con lo que tu .py espera
+      const goals = {};
       selectedHabits.forEach(habit => {
         const data = objectivesMap[habit] || { text: '', freq: 'semanal' };
         goals[habit] = data;
       });
 
-      // Ajustamos las llaves a lo que el .py espera:
-      // name, age, habits, goals
+      // Ajustamos las llaves a lo que el .py espera: name, age, habits, goals
       const payload = {
         name: nombre,
         age: edad,
@@ -706,11 +745,12 @@
         goals: goals
       };
 
-      // Aquí se usa la API de Telegram WebApp (si se abre dentro de Telegram).
-      // Esto enviará el JSON al bot a través de "web_app_data".
-      Telegram.WebApp.sendData(JSON.stringify(payload));
+      // Envío a Telegram (si está dentro de la WebApp de Telegram)
+      if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+        Telegram.WebApp.sendData(JSON.stringify(payload));
+      }
 
-      // Opcional: logs locales o alert
+      // Para debug local:
       console.log('Datos a enviar:', payload);
       alert('Se han enviado los datos: ' + JSON.stringify(payload));
     });
