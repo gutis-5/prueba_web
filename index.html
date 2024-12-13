@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <!-- Ajuste de viewport para iPhone (height=device-height ayuda en algunos casos a no recortar scroll con teclado). -->
+  <!-- Ajuste especial de viewport para iPhone con height=device-height -->
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
-  <title>🛫 ¡Despega tus Hábitos! 🚀</title>
+  <title>¡Despega tus Hábitos!</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     /* RESETEO Y BASE */
@@ -14,7 +14,6 @@
       padding: 0;
     }
     html, body {
-      /* Para iPhone: "height=device-height" + flex-col + min-height puede mejorar la scroll con teclado */
       height: 100%;
       min-height: 100vh;
       background-color: #f9f9f9;
@@ -30,17 +29,22 @@
       flex: 1;
       padding: 16px;
       overflow-y: auto;
-      /* Espacio extra para que puedas scrollear y que el teclado no tape la parte de abajo */
-      padding-bottom: 200px; 
+      /* TRIPLE padding-bottom */
+      padding-bottom: 600px; 
     }
 
-    /* TÍTULO vistoso con cohete doble */
+    /* TÍTULO: Frase + cohete en línea aparte */
     h1 {
       text-align: center;
       font-size: 1.8rem;
       margin-bottom: 1rem;
-      color: #f06292; /* mantenemos un color principal */
+      color: #f06292;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+    .subtitle-cohete {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 1rem;
     }
 
     .input-group {
@@ -71,7 +75,7 @@
       margin-bottom: 10px;
       font-size: 1.1rem;
       font-weight: 600;
-      /* Quitar el color rosa, poner negro o gris oscuro */
+      /* Quitar el color rosa */
       color: #333;
     }
     #selectedHabitsList {
@@ -140,7 +144,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      pointer-events: none; /* Para no interferir con el click principal */
+      pointer-events: none;
     }
     .habit-icon {
       font-size: 1.4rem;
@@ -155,13 +159,15 @@
 
     /* Campo para hábito personalizado con emoji */
     .custom-habit-wrapper {
-      grid-column: 1 / -1;
+      /* Ajuste para pantallas estrechas: flex-wrap para que el botón no se corte */
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       align-items: center;
       padding: 10px;
       margin-top: 10px;
       border-top: 1px dashed #ddd;
+      grid-column: 1 / -1;
     }
     .custom-emoji-input {
       width: 60px;
@@ -172,7 +178,8 @@
       padding: 8px;
     }
     .custom-habit-input {
-      flex: 1;
+      flex: 1; /* que ocupe todo lo posible */
+      min-width: 0; /* para flex */
       padding: 8px;
       border: 1px solid #eee;
       border-radius: 6px;
@@ -204,7 +211,6 @@
       margin-bottom: 10px;
       font-size: 1.1rem;
       font-weight: 600;
-      /* Quitar rosa */
       color: #333;
     }
     #objetivosList {
@@ -238,9 +244,11 @@
       align-items: center;
       gap: 10px;
       margin-top: 5px;
+      flex-wrap: wrap;
     }
     .objetivo-input {
       flex: 1;
+      min-width: 0; /* para permitir flex wrap correcto */
       padding: 8px;
       border: 1px solid #eee;
       border-radius: 6px;
@@ -260,7 +268,7 @@
     }
 
     .frequency-row {
-      margin-left: 30px; /* indentado */
+      margin-left: 30px; 
       margin-top: 5px;
     }
     .frequency-select {
@@ -280,31 +288,19 @@
       cursor: pointer;
       font-size: 1rem;
       display: block;
-      margin: 0 auto 40px auto; /* más espacio inferior */
+      margin: 0 auto 40px auto;
     }
     .send-button:hover {
       background-color: #ec407a;
-    }
-
-    /* Animación del cohete */
-    .rocket {
-      position: fixed;
-      bottom: -50px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 3rem;
-      animation: rocketFly 2s ease-in forwards;
-      z-index: 9999;
-    }
-    @keyframes rocketFly {
-      0%   { bottom: -50px; }
-      100% { bottom: 100vh; }
     }
 
     /* Breakpoints */
     @media (min-width: 600px) {
       h1 {
         font-size: 2rem;
+      }
+      .subtitle-cohete {
+        font-size: 2.5rem;
       }
     }
     @media (min-width: 768px) {
@@ -321,8 +317,9 @@
 </head>
 <body>
   <main>
-    <!-- Nuevo cohete "🛫" antes del título -->
-    <h1>🛫 ¡Despega tus Hábitos! 🚀</h1>
+    <!-- Título en dos líneas: frase y debajo solo el cohete -->
+    <h1>¡Despega tus Hábitos! aa</h1>
+    <div class="subtitle-cohete">🚀</div>
 
     <!-- Sección Nombre y Edad con asterisco -->
     <div class="input-group">
@@ -743,7 +740,7 @@
       });
     });
 
-    // Botón Enviar + ANIMACIÓN DE COHETE
+    // Botón Enviar (sin animación de cohete)
     const btnEnviar = document.getElementById('btnEnviar');
     btnEnviar.addEventListener('click', () => {
       const nombre = document.getElementById('nombre').value.trim();
@@ -776,17 +773,6 @@
 
       console.log('Datos a enviar:', payload);
       alert('Se han enviado los datos: ' + JSON.stringify(payload));
-
-      // Crear cohete animado
-      const rocket = document.createElement('div');
-      rocket.classList.add('rocket');
-      rocket.textContent = '🚀';
-      document.body.appendChild(rocket);
-
-      // Quitar el cohete tras 2.5s
-      setTimeout(() => {
-        rocket.remove();
-      }, 2500);
     });
 
     refreshUI();
