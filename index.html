@@ -2,12 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-
-  <!-- IMPORTANTE: Para que la web sea amigable en móviles -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Manejo de safe area en iOS + scroll adaptado -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <title>Gestor de Hábitos con Objetivos y Emojis</title>
-  <!-- Carga la librería de Telegram WebApp -->
+  <!-- Librería de Telegram WebApp -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   
   <style>
@@ -18,13 +17,19 @@
       padding: 0;
     }
 
-    body {
+    /* Ajustes generales para iOS safe area y scroll vertical */
+    html, body {
+      height: 100%;
+      overflow-y: auto; /* scroll vertical global */
       font-family: sans-serif;
       background-color: #f9f9f9;
-      min-height: 100vh; /* Para forzar scroll y que no se corte contenido en móvil */
+    }
+
+    body {
       display: flex;
       flex-direction: column;
-      padding: 20px; /* Margen interno */
+      padding: 20px;
+      padding-bottom: env(safe-area-inset-bottom); /* Espacio extra para iPhones con notch */
     }
 
     h1 {
@@ -47,6 +52,7 @@
       border: 1px solid #eee;
       border-radius: 6px;
       font-size: 1rem;
+      line-height: 1.2rem;
     }
 
     /* Sección "Hábitos registrados" */
@@ -99,7 +105,7 @@
       border-top: 1px solid #eee;
     }
 
-    /* Grid de hábitos */
+    /* Grid de hábitos (vertical). Si quieres scroll horizontal también ahí, podemos adaptarlo similar a Objetivos. */
     .habit-list {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -115,6 +121,7 @@
       cursor: pointer;
       transition: background-color 0.2s;
       background-color: #fff;
+      min-height: 50px; /* Para no recortar emojis */
     }
     .habit-item:hover {
       background-color: #fdfdfd;
@@ -127,10 +134,11 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      pointer-events: none; /* Para no interferir con el click principal */
+      pointer-events: none;
     }
     .habit-icon {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
+      line-height: 1.5rem;
     }
     .plus-btn {
       background-color: transparent;
@@ -142,20 +150,23 @@
 
     /* Campo para hábito personalizado con emoji */
     .custom-habit-wrapper {
-      grid-column: span 3; /* ocupa toda la fila */
+      grid-column: span 3;
       display: flex;
+      flex-direction: row; /* Mantén en la misma línea: emoji + input + btn */
       gap: 8px;
       align-items: center;
       padding: 10px;
       margin-top: 10px;
       border-top: 1px dashed #ddd;
+      min-height: 50px;
     }
     .custom-emoji-input {
-      width: 60px; /* tamaño pequeño */
+      width: 60px;
       text-align: center;
       border: 1px solid #eee;
       border-radius: 6px;
       font-size: 1rem;
+      line-height: 1.2rem;
       padding: 8px;
     }
     .custom-habit-input {
@@ -164,6 +175,7 @@
       border: 1px solid #eee;
       border-radius: 6px;
       font-size: 1rem;
+      line-height: 1.2rem;
     }
     .custom-habit-btn {
       background-color: #f06292;
@@ -173,6 +185,7 @@
       padding: 0.6rem 1rem;
       cursor: pointer;
       font-size: 0.9rem;
+      white-space: nowrap;
     }
     .custom-habit-btn:hover {
       background-color: #ec407a;
@@ -192,20 +205,33 @@
       font-size: 1.1rem;
       font-weight: 600;
     }
+
+    /*
+     * Clave: Scroll horizontal en la lista de objetivos.
+     * Si agregas muchos objetivos, se apilan en fila horizontal y se hace scroll lateral.
+     */
     #objetivosList {
-      font-size: 0.9rem;
-      color: #333;
+      display: flex;         /* Coloca los objetivos en fila */
+      flex-direction: row;
+      gap: 15px;             /* espacio entre objetivos */
+      overflow-x: auto;      /* scroll horizontal */
+      overflow-y: hidden;    /* sin scroll vertical interno */
+      scroll-behavior: smooth; /* desplazamiento suave */
     }
     .objetivo-row {
+      flex: 0 0 auto;        /* cada objetivo es un bloque horizontal */
+      width: 250px;          /* ancho fijo aprox para cada objetivo */
+      border-right: 1px dashed #ddd;
+      padding-right: 10px;
       margin-bottom: 15px;
     }
+
     .objetivo-row label {
       font-weight: 600;
       min-width: 120px;
       display: inline-block;
       margin-bottom: 5px;
     }
-    /* Botón para habilitar/deshabilitar objetivo */
     .objetivo-plus-btn {
       background-color: #f06292;
       color: #fff;
@@ -215,6 +241,7 @@
       cursor: pointer;
       font-size: 0.8rem;
       margin-left: 10px;
+      white-space: nowrap;
     }
     .objetivo-plus-btn:hover {
       background-color: #ec407a;
@@ -231,6 +258,7 @@
       border: 1px solid #eee;
       border-radius: 6px;
       font-size: 0.9rem;
+      line-height: 1.2rem;
     }
     .remove-objetivo-btn {
       background-color: #bbb;
@@ -240,12 +268,12 @@
       padding: 0.5rem 1rem;
       cursor: pointer;
       font-size: 0.8rem;
+      white-space: nowrap;
     }
     .remove-objetivo-btn:hover {
       background-color: #999;
     }
     .frequency-row {
-      margin-left: 30px; /* indentado */
       margin-top: 5px;
     }
     .frequency-select {
@@ -264,7 +292,7 @@
       padding: 0.8rem 1.5rem;
       cursor: pointer;
       font-size: 1rem;
-      margin: 0 auto; /* centrar */
+      margin: 0 auto;
       display: block;
       margin-bottom: 20px;
     }
@@ -272,7 +300,7 @@
       background-color: #ec407a;
     }
 
-    /* Media queries para hacerlo más amigable en dispositivos pequeños */
+    /* Media queries para responsive */
     @media (max-width: 768px) {
       .habit-list {
         grid-template-columns: repeat(2, 1fr);
@@ -280,22 +308,13 @@
     }
     @media (max-width: 480px) {
       .habit-list {
-        grid-template-columns: 1fr; /* Una sola columna en pantallas muy pequeñas */
-      }
-      .custom-habit-wrapper {
-        flex-direction: column;
-      }
-      .custom-emoji-input {
-        width: 100%;
-      }
-      .custom-habit-btn {
-        width: 100%;
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
-  <h1>Gestor de Hábitos con Objetivos y Emojis 2</h1>
+  <h1>Gestor de Hábitos con Objetivos y Emojis</h1>
 
   <!-- Sección Nombre y Edad -->
   <div class="input-group">
@@ -313,7 +332,7 @@
     <div id="selectedHabitsList">(vacío)</div>
   </div>
 
-  <!-- ACORDEONES POR CATEGORÍA -->
+  <!-- Acordeones -->
   <div class="accordion" data-category="salud">
     <div class="accordion-header">
       <h3>Salud</h3>
@@ -342,7 +361,8 @@
           </div>
           <button class="plus-btn">+</button>
         </div>
-        <!-- Input emoji + input texto + botón Agregar -->
+
+        <!-- Personalizado Salud -->
         <div class="custom-habit-wrapper">
           <input type="text" class="custom-emoji-input" placeholder="Emoji">
           <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
@@ -380,6 +400,8 @@
           </div>
           <button class="plus-btn">+</button>
         </div>
+
+        <!-- Personalizado Deporte -->
         <div class="custom-habit-wrapper">
           <input type="text" class="custom-emoji-input" placeholder="Emoji">
           <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
@@ -417,6 +439,8 @@
           </div>
           <button class="plus-btn">+</button>
         </div>
+
+        <!-- Personalizado Estilo -->
         <div class="custom-habit-wrapper">
           <input type="text" class="custom-emoji-input" placeholder="Emoji">
           <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
@@ -454,6 +478,8 @@
           </div>
           <button class="plus-btn">+</button>
         </div>
+
+        <!-- Personalizado Tiempo -->
         <div class="custom-habit-wrapper">
           <input type="text" class="custom-emoji-input" placeholder="Emoji">
           <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
@@ -491,6 +517,8 @@
           </div>
           <button class="plus-btn">+</button>
         </div>
+
+        <!-- Personalizado Dejar -->
         <div class="custom-habit-wrapper">
           <input type="text" class="custom-emoji-input" placeholder="Emoji">
           <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
@@ -500,10 +528,10 @@
     </div>
   </div>
 
-  <!-- Sección de Objetivos -->
+  <!-- Sección de Objetivos con scroll horizontal (#objetivosList) -->
   <div id="objetivosContainer">
     <h2>Objetivos</h2>
-    <div id="objetivosList"></div>
+    <div id="objetivosList"><!-- Objetivos se renderizan aquí --></div>
   </div>
 
   <button class="send-button" id="btnEnviar">Enviar</button>
@@ -515,12 +543,12 @@
       const content = accordion.querySelector('.accordion-content');
       header.addEventListener('click', () => {
         const isOpen = content.classList.contains('open');
-        // Cerrar todos
+        // Cierra todos
         document.querySelectorAll('.accordion-content').forEach(ac => {
           ac.classList.remove('open');
           ac.style.maxHeight = null;
         });
-        // Abrir el que se clicó si estaba cerrado
+        // Abre solo el clicado si estaba cerrado
         if(!isOpen) {
           content.classList.add('open');
           content.style.maxHeight = content.scrollHeight + 'px';
@@ -612,7 +640,6 @@
 
           row.appendChild(contentDiv);
 
-          // Frecuencia
           const freqDiv = document.createElement('div');
           freqDiv.className = 'frequency-row';
           const freqSelect = document.createElement('select');
@@ -640,6 +667,7 @@
       updateObjectivesDisplay();
     }
 
+    // Seleccionar/deseleccionar hábitos
     document.querySelectorAll('.habit-item').forEach(item => {
       item.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -717,27 +745,24 @@
       });
     });
 
-    // Botón Enviar: usar la API de Telegram WebApp
+    // Botón Enviar
     const btnEnviar = document.getElementById('btnEnviar');
     btnEnviar.addEventListener('click', () => {
       const nombre = document.getElementById('nombre').value.trim();
       const edad = document.getElementById('edad').value.trim();
 
-      // Recolectar hábitos seleccionados
       const selectedItems = document.querySelectorAll('.habit-item.selected');
       const selectedHabits = [];
       selectedItems.forEach(item => {
         selectedHabits.push(item.dataset.habit);
       });
 
-      // Recolectar objetivos/frecuencia
       const goals = {};
       selectedHabits.forEach(habit => {
         const data = objectivesMap[habit] || { text: '', freq: 'semanal' };
         goals[habit] = data;
       });
 
-      // Ajustamos las llaves a lo que el .py espera: name, age, habits, goals
       const payload = {
         name: nombre,
         age: edad,
@@ -745,12 +770,10 @@
         goals: goals
       };
 
-      // Envío a Telegram (si está dentro de la WebApp de Telegram)
       if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
         Telegram.WebApp.sendData(JSON.stringify(payload));
       }
 
-      // Para debug local:
       console.log('Datos a enviar:', payload);
       alert('Se han enviado los datos: ' + JSON.stringify(payload));
     });
