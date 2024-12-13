@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <!-- Para que se adapte bien en móviles -->
+  <!-- Imprescindible para adaptar a móvil -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestor de Hábitos (Responsive + MainButton)</title>
+  <title>Gestor de Hábitos - Telegram WebApp</title>
   <style>
     body {
       font-family: sans-serif;
@@ -12,9 +12,10 @@
       background-color: #f9f9f9;
     }
     h1 {
-      margin-bottom: 1rem;
       text-align: center;
+      margin-bottom: 1rem;
     }
+
     .input-group {
       margin-bottom: 15px;
     }
@@ -32,6 +33,7 @@
       box-sizing: border-box;
     }
 
+    /* Sección "Hábitos registrados" */
     #habitosSeleccionadosContainer {
       background-color: #fff;
       border: 1px solid #eee;
@@ -55,7 +57,6 @@
       border: 1px solid #eee;
       border-radius: 8px;
       margin-bottom: 10px;
-      overflow: hidden;
       background-color: #fff;
     }
     .accordion-header {
@@ -81,7 +82,7 @@
       border-top: 1px solid #eee;
     }
 
-    /* Grid responsive para hábitos */
+    /* Grid responsive de hábitos */
     .habit-list {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -161,13 +162,14 @@
       background-color: #ec407a;
     }
 
+    /* Objetivos */
     #objetivosContainer {
       background-color: #fff;
       border: 1px solid #eee;
       border-radius: 8px;
       padding: 15px;
       margin-top: 20px;
-      margin-bottom: 60px; /* deja espacio para el MainButton */
+      margin-bottom: 60px; /* espacio para el MainButton de Telegram */
     }
     #objetivosContainer h2 {
       margin: 0 0 10px 0;
@@ -196,9 +198,6 @@
       cursor: pointer;
       font-size: 0.8rem;
       margin-left: 10px;
-    }
-    .objetivo-plus-btn:hover {
-      background-color: #ec407a;
     }
     .objetivo-content {
       display: flex;
@@ -235,11 +234,10 @@
       border-radius: 6px;
       border: 1px solid #eee;
     }
-
   </style>
 </head>
 <body>
-  <h1>Gestor de Hábitos pegar tele (Responsive)</h1>
+  <h1>Gestor de Hábitos repetido</h1>
 
   <div class="input-group">
     <label for="nombre">Nombre *</label>
@@ -255,12 +253,10 @@
     <div id="selectedHabitsList">(vacío)</div>
   </div>
 
-  <!-- ACORDEONES (Salud, Deporte, etc.) con data-category en cada .habit-item -->
-
+  <!-- Acordeones: Ejemplo de 2 categorías. Añade más si lo deseas. -->
   <div class="accordion" data-category="Salud">
     <div class="accordion-header">
-      <h3>Salud</h3>
-      <span>+</span>
+      <h3>Salud</h3><span>+</span>
     </div>
     <div class="accordion-content">
       <div class="habit-list">
@@ -294,7 +290,6 @@
     </div>
   </div>
 
-  <!-- Repite para Deporte, Estilo de Vida, Tiempo, Hábitos a Dejar, etc. -->
   <div class="accordion" data-category="Deporte">
     <div class="accordion-header">
       <h3>Deporte</h3><span>+</span>
@@ -322,7 +317,6 @@
           </div>
           <button class="plus-btn">+</button>
         </div>
-
         <div class="custom-habit-wrapper">
           <input type="text" class="custom-emoji-input" placeholder="Emoji">
           <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
@@ -332,67 +326,57 @@
     </div>
   </div>
 
-  <!-- Estilo de Vida, Tiempo, Hábitos a Dejar... etc. -->
-
   <div id="objetivosContainer">
     <h2>Objetivos</h2>
     <div id="objetivosList"></div>
   </div>
 
   <script>
-    /****************************************************/
-    /* Telegram WebApp MAIN BUTTON (lógica snippet)      */
-    /****************************************************/
-
+    /***********************************************
+     * Lógica para Telegram WebApp MainButton
+     ***********************************************/
     let tg = null;
-    // Asegurarnos de que la web app está lista
-    if(window.Telegram && window.Telegram.WebApp){
+    if (window.Telegram && window.Telegram.WebApp) {
       tg = window.Telegram.WebApp;
-      tg.ready(); // Inicializa la UI de la WebApp
-
-      // Inicializar el MainButton con la lógica del snippet
+      // Indicar que la WebApp ya está lista
+      tg.ready(); 
+      // Configurar botón principal de Telegram
       const mainButton = tg.MainButton;
       mainButton.text = "🚫 Completa todos los campos 🚫";
       mainButton.disable();
-      mainButton.color = "#ccc"; // gris
-      mainButton.show();
+      mainButton.color = "#ccc";
+      mainButton.show(); 
     }
 
     const MAX_HABITS = 5;
     let selectedCount = 0;
-    const objectivesMap = {}; // { "Beber agua": { text:'', freq:'semanal' }, ... }
-    const togglesMap = {};    // { "Beber agua": true/false }
+    const objectivesMap = {}; // { habito: {text:'', freq:'semanal'}, ... }
+    const togglesMap = {};    // { habito: boolean }
 
     const selectedHabitsList = document.getElementById('selectedHabitsList');
     const objetivosContainer = document.getElementById('objetivosContainer');
     const objetivosList = document.getElementById('objetivosList');
 
-    /****************************************************/
-    /* ACORDEÓN                                         */
-    /****************************************************/
+    // Acordeón
     document.querySelectorAll('.accordion').forEach(accordion => {
       const header = accordion.querySelector('.accordion-header');
       const content = accordion.querySelector('.accordion-content');
       header.addEventListener('click', () => {
         const isOpen = content.classList.contains('open');
-        // Cerrar todos los paneles
         document.querySelectorAll('.accordion-content').forEach(ac => {
           ac.classList.remove('open');
           ac.style.maxHeight = null;
         });
-        // Si no estaba abierto, abrimos este
-        if(!isOpen) {
+        if (!isOpen) {
           content.classList.add('open');
           content.style.maxHeight = content.scrollHeight + 'px';
         }
       });
     });
 
-    /****************************************************/
-    /* SELECCIÓN DE HÁBITOS                             */
-    /****************************************************/
+    // Seleccionar/deseleccionar
     document.querySelectorAll('.habit-item').forEach(item => {
-      item.addEventListener('click', (e) => {
+      item.addEventListener('click', e => {
         e.stopPropagation();
         if(!item.classList.contains('selected')){
           if(selectedCount < MAX_HABITS){
@@ -411,18 +395,15 @@
       });
     });
 
-    /****************************************************/
-    /* AGREGAR HÁBITO PERSONALIZADO                     */
-    /****************************************************/
+    // Agregar hábito personalizado
     document.querySelectorAll('.custom-habit-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', e => {
         e.stopPropagation();
         const parent = btn.closest('.habit-list');
         const emojiInput = parent.querySelector('.custom-emoji-input');
         const input = parent.querySelector('.custom-habit-input');
         const customEmoji = emojiInput.value.trim() || '⭐';
         const customName = input.value.trim();
-
         if(!customName){
           alert('Ingresa un nombre para el hábito.');
           return;
@@ -474,13 +455,11 @@
       });
     });
 
-    /****************************************************/
-    /* LÓGICA DE OBJETIVOS                               */
-    /****************************************************/
+    // UI
     function refreshUI(){
       updateSelectedHabitsDisplay();
       updateObjectivesDisplay();
-      updateMainButton(); // Actualiza el MainButton con la lógica snippet
+      updateMainButton(); 
     }
 
     function updateSelectedHabitsDisplay(){
@@ -497,7 +476,6 @@
     function updateObjectivesDisplay(){
       const selectedItems = document.querySelectorAll('.habit-item.selected');
       objetivosList.innerHTML = '';
-
       if(selectedItems.length === 0){
         objetivosContainer.style.display = 'none';
         return;
@@ -530,7 +508,6 @@
           });
           row.appendChild(plusBtn);
         } else {
-          // input + boton Quitar
           const contentDiv = document.createElement('div');
           contentDiv.className = 'objetivo-content';
 
@@ -555,6 +532,7 @@
 
           row.appendChild(contentDiv);
 
+          // Frecuencia
           const freqDiv = document.createElement('div');
           freqDiv.className = 'frequency-row';
           const freqSelect = document.createElement('select');
@@ -572,22 +550,19 @@
 
           row.appendChild(freqDiv);
         }
-
         objetivosList.appendChild(row);
       });
     }
 
-    /****************************************************/
-    /* LOGICA DEL MAINBUTTON (Snippet)                   */
-    /****************************************************/
+    // Lógica del mainButton
     function updateMainButton(){
-      if(!tg) return;  // Fuera de Telegram, no hacemos nada
+      if(!tg) return;  // Si no estamos en Telegram, no hacemos nada
       const mainButton = tg.MainButton;
       const nombre = document.getElementById('nombre').value.trim();
       const edad = document.getElementById('edad').value.trim();
       const selectedItems = document.querySelectorAll('.habit-item.selected');
 
-      // "isFormComplete" style logic
+      // Mismo snippet que diste
       if(nombre && edad && selectedItems.length > 0){
         mainButton.text = "💪 Completar registro 💪";
         mainButton.enable();
@@ -603,11 +578,11 @@
     function sendToTelegram(){
       const payload = buildTelegramPayload();
       const dataStr = JSON.stringify(payload);
+      // Enviar datos al bot
       tg.sendData(dataStr);
       alert("Datos enviados a Telegram:\n" + dataStr);
     }
 
-    // Estructura final solicitada: { "Nombre", "Edad", "Habito": [...], "Objetivos": [...] }
     function buildTelegramPayload(){
       const nombre = document.getElementById('nombre').value.trim();
       const edad = document.getElementById('edad').value.trim();
@@ -635,11 +610,10 @@
       };
     }
 
-    // Listeners para Nombre y Edad
+    // Listeners
     document.getElementById('nombre').addEventListener('input', refreshUI);
     document.getElementById('edad').addEventListener('input', refreshUI);
 
-    // Inicializar
     refreshUI();
   </script>
 </body>
