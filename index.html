@@ -18,7 +18,7 @@
       min-height: 100vh;
       background-color: #f9f9f9;
       font-family: sans-serif;
-      -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+      -webkit-overflow-scrolling: touch;
     }
     body {
       display: flex;
@@ -29,15 +29,15 @@
       flex: 1;
       padding: 16px;
       overflow-y: auto;
-      /* TRIPLE padding-bottom */
-      padding-bottom: 600px; 
+      /* triple padding-bottom x3 -> 600px  */
+      padding-bottom: 600px;
     }
 
-    /* TÍTULO: Frase + cohete en línea aparte */
+    /* TÍTULO: frase y debajo cohete */
     h1 {
       text-align: center;
       font-size: 1.8rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       color: #f06292;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
     }
@@ -63,7 +63,7 @@
       font-size: 1rem;
     }
 
-    /* Sección "Hábitos registrados" */
+    /* Sección Hábitos Registrados */
     #habitosSeleccionadosContainer {
       background-color: #fff;
       border: 1px solid #eee;
@@ -75,7 +75,6 @@
       margin-bottom: 10px;
       font-size: 1.1rem;
       font-weight: 600;
-      /* Quitar el color rosa */
       color: #333;
     }
     #selectedHabitsList {
@@ -84,7 +83,7 @@
       min-height: 20px;
     }
 
-    /* ACORDEÓN con borde color #f06292 */
+    /* Acordeón */
     .accordion {
       border: 2px solid #f06292;
       border-radius: 8px;
@@ -116,7 +115,7 @@
       border-top: 1px solid #eee;
     }
 
-    /* Grid de hábitos - adaptado para distintas pantallas */
+    /* Grid de hábitos */
     .habit-list {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -157,9 +156,8 @@
       cursor: pointer;
     }
 
-    /* Campo para hábito personalizado con emoji */
+    /* Personalizado con emoji */
     .custom-habit-wrapper {
-      /* Ajuste para pantallas estrechas: flex-wrap para que el botón no se corte */
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
@@ -178,8 +176,8 @@
       padding: 8px;
     }
     .custom-habit-input {
-      flex: 1; /* que ocupe todo lo posible */
-      min-width: 0; /* para flex */
+      flex: 1;
+      min-width: 0;
       padding: 8px;
       border: 1px solid #eee;
       border-radius: 6px;
@@ -248,7 +246,7 @@
     }
     .objetivo-input {
       flex: 1;
-      min-width: 0; /* para permitir flex wrap correcto */
+      min-width: 0;
       padding: 8px;
       border: 1px solid #eee;
       border-radius: 6px;
@@ -266,9 +264,8 @@
     .remove-objetivo-btn:hover {
       background-color: #999;
     }
-
     .frequency-row {
-      margin-left: 30px; 
+      margin-left: 30px;
       margin-top: 5px;
     }
     .frequency-select {
@@ -280,18 +277,32 @@
 
     /* Botón Enviar */
     .send-button {
-      background-color: #f06292;
+      background-color: #ccc; /* gris por defecto */
       color: #fff;
       border: none;
       border-radius: 8px;
       padding: 0.8rem 1.5rem;
-      cursor: pointer;
+      cursor: not-allowed;
       font-size: 1rem;
       display: block;
       margin: 0 auto 40px auto;
+      transition: background-color 0.2s;
     }
-    .send-button:hover {
+    .send-button.enabled {
+      background-color: #f06292;
+      cursor: pointer;
+    }
+    .send-button.enabled:hover {
       background-color: #ec407a;
+    }
+
+    /* Mensajes de error */
+    #errorMessages {
+      font-size: 0.7rem;
+      color: #d00;
+      line-height: 1.2;
+      margin-top: 10px;
+      text-align: center;
     }
 
     /* Breakpoints */
@@ -317,11 +328,9 @@
 </head>
 <body>
   <main>
-    <!-- Título en dos líneas: frase y debajo solo el cohete -->
-    <h1>¡Despega tus Hábitos! aa</h1>
+    <h1>¡Despega tus Hábitos! bonito</h1>
     <div class="subtitle-cohete">🚀</div>
 
-    <!-- Sección Nombre y Edad con asterisco -->
     <div class="input-group">
       <label for="nombre">Nombre *</label>
       <input type="text" id="nombre" placeholder="Ingresa tu nombre">
@@ -331,7 +340,6 @@
       <input type="number" id="edad" placeholder="Ingresa tu edad">
     </div>
 
-    <!-- Hábitos Registrados -->
     <div id="habitosSeleccionadosContainer">
       <h2>Hábitos registrados *</h2>
       <div id="selectedHabitsList">(vacío)</div>
@@ -523,29 +531,37 @@
       </div>
     </div>
 
-    <!-- Sección de Objetivos -->
+    <!-- Sección Objetivos -->
     <div id="objetivosContainer">
       <h2>Objetivos</h2>
       <div id="objetivosList"></div>
     </div>
 
     <button class="send-button" id="btnEnviar">Enviar</button>
+
+    <!-- Mensajes de error -->
+    <div id="errorMessages"></div>
   </main>
 
   <script>
-    // --- ACORDEÓN ---
     document.querySelectorAll('.accordion').forEach(accordion => {
       const header = accordion.querySelector('.accordion-header');
       const content = accordion.querySelector('.accordion-content');
+
+      // Asignar data-category a cada .habit-item existente
+      accordion.querySelectorAll('.habit-item').forEach(item => {
+        item.dataset.category = accordion.dataset.category || 'otro';
+      });
+
       header.addEventListener('click', () => {
         const isOpen = content.classList.contains('open');
-        // Cerrar todos los paneles primero
+        // Cerrar todos
         document.querySelectorAll('.accordion-content').forEach(ac => {
           ac.classList.remove('open');
           ac.style.maxHeight = null;
         });
-        // Abrir solo si estaba cerrado
-        if(!isOpen) {
+        // Abrir si estaba cerrado
+        if (!isOpen) {
           content.classList.add('open');
           content.style.maxHeight = content.scrollHeight + 'px';
         }
@@ -555,12 +571,13 @@
     const MAX_HABITS = 5;
     let selectedCount = 0;
 
-    const objectivesMap = {};
-    const togglesMap = {};
-
+    const objectivesMap = {}; // habitName -> { text, freq }
+    const togglesMap = {};    // habitName -> bool
     const selectedHabitsList = document.getElementById('selectedHabitsList');
     const objetivosContainer = document.getElementById('objetivosContainer');
     const objetivosList = document.getElementById('objetivosList');
+    const btnEnviar = document.getElementById('btnEnviar');
+    const errorMessages = document.getElementById('errorMessages');
 
     function updateSelectedHabitsDisplay() {
       const selectedItems = document.querySelectorAll('.habit-item.selected');
@@ -588,6 +605,7 @@
 
       selectedItems.forEach(item => {
         const habitName = item.dataset.habit;
+        const category = item.dataset.category || 'otro';
         if (!objectivesMap[habitName]) {
           objectivesMap[habitName] = { text: '', freq: 'semanal' };
         }
@@ -609,6 +627,7 @@
           plusBtn.addEventListener('click', () => {
             togglesMap[habitName] = true;
             updateObjectivesDisplay();
+            validateInputs();
           });
           row.appendChild(plusBtn);
         } else {
@@ -621,6 +640,7 @@
           inputObj.value = objectivesMap[habitName].text;
           inputObj.addEventListener('input', () => {
             objectivesMap[habitName].text = inputObj.value;
+            validateInputs();
           });
           contentDiv.appendChild(inputObj);
 
@@ -631,10 +651,12 @@
             togglesMap[habitName] = false;
             objectivesMap[habitName] = { text: '', freq: 'semanal' };
             updateObjectivesDisplay();
+            validateInputs();
           });
           contentDiv.appendChild(removeBtn);
 
-          // Frecuencia
+          row.appendChild(contentDiv);
+
           const freqDiv = document.createElement('div');
           freqDiv.className = 'frequency-row';
           const freqSelect = document.createElement('select');
@@ -650,24 +672,69 @@
           });
           freqDiv.appendChild(freqSelect);
 
-          row.appendChild(contentDiv);
           row.appendChild(freqDiv);
         }
-
         objetivosList.appendChild(row);
       });
+      // Forzar validación al final
+      validateInputs();
     }
 
     function refreshUI() {
       updateSelectedHabitsDisplay();
       updateObjectivesDisplay();
+      validateInputs();
     }
 
+    // VALIDACIÓN
+    function validateInputs() {
+      const errors = [];
+      const nombre = document.getElementById('nombre').value.trim();
+      const edad = document.getElementById('edad').value.trim();
+      const selectedItems = document.querySelectorAll('.habit-item.selected');
+
+      if (!nombre) {
+        errors.push('- Falta el nombre');
+      }
+      if (!edad) {
+        errors.push('- Falta la edad');
+      }
+      if (selectedItems.length === 0) {
+        errors.push('- Falta al menos un hábito');
+      }
+
+      // Revisar objetivos vacíos
+      selectedItems.forEach(item => {
+        const habitName = item.dataset.habit;
+        if (togglesMap[habitName]) {
+          const objText = objectivesMap[habitName].text.trim();
+          if (!objText) {
+            errors.push(`- Quite el objetivo o ponga algo (para "${habitName}")`);
+          }
+        }
+      });
+
+      if (errors.length === 0) {
+        btnEnviar.classList.add('enabled');
+        btnEnviar.removeAttribute('disabled');
+        btnEnviar.style.backgroundColor = '#f06292';
+        btnEnviar.style.cursor = 'pointer';
+      } else {
+        btnEnviar.classList.remove('enabled');
+        btnEnviar.setAttribute('disabled', true);
+        btnEnviar.style.backgroundColor = '#ccc';
+        btnEnviar.style.cursor = 'not-allowed';
+      }
+
+      errorMessages.innerHTML = errors.length > 0 ? errors.join('<br>') : '';
+    }
+
+    // Seleccionar/deseleccionar hábitos
     document.querySelectorAll('.habit-item').forEach(item => {
       item.addEventListener('click', (e) => {
         e.stopPropagation();
         if (!item.classList.contains('selected')) {
-          if(selectedCount < MAX_HABITS) {
+          if (selectedCount < MAX_HABITS) {
             item.classList.add('selected');
             selectedCount++;
           } else {
@@ -693,11 +760,11 @@
         const customEmoji = emojiInput.value.trim() || '⭐';
         const customName = input.value.trim();
 
-        if(!customName) {
+        if (!customName) {
           alert('Ingresa un nombre para el hábito.');
           return;
         }
-        if(selectedCount >= MAX_HABITS) {
+        if (selectedCount >= MAX_HABITS) {
           alert('Máximo de 5 hábitos alcanzado.');
           return;
         }
@@ -705,6 +772,10 @@
         const newHabit = document.createElement('div');
         newHabit.className = 'habit-item selected';
         newHabit.dataset.habit = customName;
+        // Asignar la misma categoría que el padre .accordion
+        const accordion = btn.closest('.accordion');
+        newHabit.dataset.category = accordion ? accordion.dataset.category : 'otro';
+
         newHabit.innerHTML = `
           <div class="habit-label">
             <span class="habit-icon">${customEmoji}</span>
@@ -719,13 +790,13 @@
 
         newHabit.addEventListener('click', (ev) => {
           ev.stopPropagation();
-          if(newHabit.classList.contains('selected')) {
+          if (newHabit.classList.contains('selected')) {
             newHabit.classList.remove('selected');
             selectedCount--;
             delete objectivesMap[newHabit.dataset.habit];
             delete togglesMap[newHabit.dataset.habit];
           } else {
-            if(selectedCount < MAX_HABITS) {
+            if (selectedCount < MAX_HABITS) {
               newHabit.classList.add('selected');
               selectedCount++;
             } else {
@@ -740,39 +811,49 @@
       });
     });
 
-    // Botón Enviar (sin animación de cohete)
-    const btnEnviar = document.getElementById('btnEnviar');
+    // Botón Enviar
     btnEnviar.addEventListener('click', () => {
       const nombre = document.getElementById('nombre').value.trim();
       const edad = document.getElementById('edad').value.trim();
-
-      // Recolectar hábitos seleccionados
       const selectedItems = document.querySelectorAll('.habit-item.selected');
-      const selectedHabits = [];
+
+      // Construir array de hábitos: [category, habitName]
+      const habitos = [];
       selectedItems.forEach(item => {
-        selectedHabits.push(item.dataset.habit);
+        const cat = item.dataset.category || 'otro';
+        const hab = item.dataset.habit;
+        habitos.push([cat, hab]);
       });
 
-      // Recolectar objetivos/frecuencia
-      const goals = {};
-      selectedHabits.forEach(habit => {
-        const data = objectivesMap[habit] || { text: '', freq: 'semanal' };
-        goals[habit] = data;
+      // Construir array de objetivos: [category, habitName, objetivoTexto, freq]
+      const objetivos = [];
+      selectedItems.forEach(item => {
+        const habitName = item.dataset.habit;
+        const category = item.dataset.category || 'otro';
+        if (togglesMap[habitName] === true) {
+          const objText = objectivesMap[habitName].text.trim();
+          const freq = objectivesMap[habitName].freq;
+          if (objText !== '') {
+            objetivos.push([category, habitName, objText, freq]);
+          }
+        }
       });
 
       const payload = {
-        name: nombre,
-        age: edad,
-        habits: selectedHabits,
-        goals: goals
+        nombre,
+        edad,
+        habitos,
+        objetivos
       };
 
+      // Enviar a Telegram
       if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
         Telegram.WebApp.sendData(JSON.stringify(payload));
       }
 
       console.log('Datos a enviar:', payload);
-      alert('Se han enviado los datos: ' + JSON.stringify(payload));
+      // Mensaje final amigable
+      alert('¡Genial, ya estás registrado! Ya puedes empezar a utilizar la app 🤩');
     });
 
     refreshUI();
