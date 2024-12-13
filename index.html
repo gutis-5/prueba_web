@@ -1,41 +1,45 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
   <meta charset="UTF-8">
-  <!-- Manejo de safe area en iOS + scroll adaptado -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
   <title>Gestor de Hábitos con Objetivos y Emojis</title>
+  <!-- Viewport que fuerza el modo responsive -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
   <!-- Librería de Telegram WebApp -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  
+
   <style>
-    /* Reseteo básico */
+    /* RESETEO Y BASE */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-
-    /* Ajustes generales para iOS safe area y scroll vertical */
     html, body {
       height: 100%;
-      overflow-y: auto; /* scroll vertical global */
-      font-family: sans-serif;
+      min-height: 100vh;
+      /* Para que no haya salto cuando aparece el teclado en iOS */
       background-color: #f9f9f9;
+      font-family: sans-serif;
+      -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
     }
-
     body {
+      /* Al usar min-height:100vh, nos aseguramos que ocupe toda la pantalla y
+         permita scroll cuando aparece el teclado. */
       display: flex;
       flex-direction: column;
-      padding: 20px;
-      padding-bottom: env(safe-area-inset-bottom); /* Espacio extra para iPhones con notch */
+    }
+
+    main {
+      flex: 1;  /* Esto hace que el contenido crezca y sea scrollable */
+      padding: 16px;
+      overflow-y: auto; /* Para que aparezca scroll si se necesita */
     }
 
     h1 {
       margin-bottom: 1rem;
-      font-size: 1.5rem;
-      text-align: center;
+      font-size: 1.3rem;
     }
 
     .input-group {
@@ -52,7 +56,6 @@
       border: 1px solid #eee;
       border-radius: 6px;
       font-size: 1rem;
-      line-height: 1.2rem;
     }
 
     /* Sección "Hábitos registrados" */
@@ -64,7 +67,7 @@
       margin-bottom: 20px;
     }
     #habitosSeleccionadosContainer h2 {
-      margin: 0 0 10px 0;
+      margin-bottom: 10px;
       font-size: 1.1rem;
       font-weight: 600;
     }
@@ -105,10 +108,11 @@
       border-top: 1px solid #eee;
     }
 
-    /* Grid de hábitos (vertical). Si quieres scroll horizontal también ahí, podemos adaptarlo similar a Objetivos. */
+    /* Grid de hábitos - adaptado para distintas pantallas */
     .habit-list {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      /* En móviles muy pequeños: 1 columna, en pantallas medianas: 2 columnas, y en pantallas más grandes: 3 */
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       gap: 10px;
     }
     .habit-item {
@@ -121,7 +125,6 @@
       cursor: pointer;
       transition: background-color 0.2s;
       background-color: #fff;
-      min-height: 50px; /* Para no recortar emojis */
     }
     .habit-item:hover {
       background-color: #fdfdfd;
@@ -134,11 +137,10 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      pointer-events: none;
+      pointer-events: none; /* Para no interferir con el click principal */
     }
     .habit-icon {
-      font-size: 1.5rem;
-      line-height: 1.5rem;
+      font-size: 1.4rem;
     }
     .plus-btn {
       background-color: transparent;
@@ -150,15 +152,13 @@
 
     /* Campo para hábito personalizado con emoji */
     .custom-habit-wrapper {
-      grid-column: span 3;
+      grid-column: 1 / -1; /* Ocupa toda la fila */
       display: flex;
-      flex-direction: row; /* Mantén en la misma línea: emoji + input + btn */
       gap: 8px;
       align-items: center;
       padding: 10px;
       margin-top: 10px;
       border-top: 1px dashed #ddd;
-      min-height: 50px;
     }
     .custom-emoji-input {
       width: 60px;
@@ -166,7 +166,6 @@
       border: 1px solid #eee;
       border-radius: 6px;
       font-size: 1rem;
-      line-height: 1.2rem;
       padding: 8px;
     }
     .custom-habit-input {
@@ -175,7 +174,6 @@
       border: 1px solid #eee;
       border-radius: 6px;
       font-size: 1rem;
-      line-height: 1.2rem;
     }
     .custom-habit-btn {
       background-color: #f06292;
@@ -185,7 +183,6 @@
       padding: 0.6rem 1rem;
       cursor: pointer;
       font-size: 0.9rem;
-      white-space: nowrap;
     }
     .custom-habit-btn:hover {
       background-color: #ec407a;
@@ -201,31 +198,17 @@
       margin-bottom: 20px;
     }
     #objetivosContainer h2 {
-      margin: 0 0 10px 0;
+      margin-bottom: 10px;
       font-size: 1.1rem;
       font-weight: 600;
     }
-
-    /*
-     * Clave: Scroll horizontal en la lista de objetivos.
-     * Si agregas muchos objetivos, se apilan en fila horizontal y se hace scroll lateral.
-     */
     #objetivosList {
-      display: flex;         /* Coloca los objetivos en fila */
-      flex-direction: row;
-      gap: 15px;             /* espacio entre objetivos */
-      overflow-x: auto;      /* scroll horizontal */
-      overflow-y: hidden;    /* sin scroll vertical interno */
-      scroll-behavior: smooth; /* desplazamiento suave */
+      font-size: 0.9rem;
+      color: #333;
     }
     .objetivo-row {
-      flex: 0 0 auto;        /* cada objetivo es un bloque horizontal */
-      width: 250px;          /* ancho fijo aprox para cada objetivo */
-      border-right: 1px dashed #ddd;
-      padding-right: 10px;
       margin-bottom: 15px;
     }
-
     .objetivo-row label {
       font-weight: 600;
       min-width: 120px;
@@ -241,7 +224,6 @@
       cursor: pointer;
       font-size: 0.8rem;
       margin-left: 10px;
-      white-space: nowrap;
     }
     .objetivo-plus-btn:hover {
       background-color: #ec407a;
@@ -258,7 +240,6 @@
       border: 1px solid #eee;
       border-radius: 6px;
       font-size: 0.9rem;
-      line-height: 1.2rem;
     }
     .remove-objetivo-btn {
       background-color: #bbb;
@@ -268,12 +249,13 @@
       padding: 0.5rem 1rem;
       cursor: pointer;
       font-size: 0.8rem;
-      white-space: nowrap;
     }
     .remove-objetivo-btn:hover {
       background-color: #999;
     }
+
     .frequency-row {
+      margin-left: 30px; /* indentado */
       margin-top: 5px;
     }
     .frequency-select {
@@ -292,249 +274,248 @@
       padding: 0.8rem 1.5rem;
       cursor: pointer;
       font-size: 1rem;
-      margin: 0 auto;
-      display: block;
-      margin-bottom: 20px;
+      margin-bottom: 20px; /* para separarlo del borde inferior */
     }
     .send-button:hover {
       background-color: #ec407a;
     }
 
-    /* Media queries para responsive */
-    @media (max-width: 768px) {
+    /* Ajustes responsivos adicionales (breakpoints) */
+    @media (min-width: 600px) {
+      h1 {
+        font-size: 1.4rem;
+      }
+      .custom-emoji-input {
+        font-size: 1rem;
+      }
+    }
+    @media (min-width: 768px) {
       .habit-list {
         grid-template-columns: repeat(2, 1fr);
       }
     }
-    @media (max-width: 480px) {
+    @media (min-width: 992px) {
       .habit-list {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, 1fr);
       }
     }
   </style>
 </head>
 <body>
-  <h1>Gestor de Hábitos con Objetivos y Emojis</h1>
+  <main>
+    <h1>Gestor de Hábitos con Objetivos y Emojis v1</h1>
 
-  <!-- Sección Nombre y Edad -->
-  <div class="input-group">
-    <label for="nombre">Nombre *</label>
-    <input type="text" id="nombre" placeholder="Ingresa tu nombre">
-  </div>
-  <div class="input-group">
-    <label for="edad">Edad *</label>
-    <input type="number" id="edad" placeholder="Ingresa tu edad">
-  </div>
-
-  <!-- Hábitos Registrados -->
-  <div id="habitosSeleccionadosContainer">
-    <h2>Hábitos registrados *</h2>
-    <div id="selectedHabitsList">(vacío)</div>
-  </div>
-
-  <!-- Acordeones -->
-  <div class="accordion" data-category="salud">
-    <div class="accordion-header">
-      <h3>Salud</h3>
-      <span>+</span>
+    <!-- Sección Nombre y Edad con asterisco -->
+    <div class="input-group">
+      <label for="nombre">Nombre *</label>
+      <input type="text" id="nombre" placeholder="Ingresa tu nombre">
     </div>
-    <div class="accordion-content">
-      <div class="habit-list">
-        <div class="habit-item" data-habit="Beber agua">
-          <div class="habit-label">
-            <span class="habit-icon">💧</span>
-            <span>Beber agua</span>
-          </div>
-          <button class="plus-btn">+</button>
-        </div>
-        <div class="habit-item" data-habit="Comer frutas">
-          <div class="habit-label">
-            <span class="habit-icon">🍓</span>
-            <span>Comer frutas</span>
-          </div>
-          <button class="plus-btn">+</button>
-        </div>
-        <div class="habit-item" data-habit="Comer verduras">
-          <div class="habit-label">
-            <span class="habit-icon">🥦</span>
-            <span>Comer verduras</span>
-          </div>
-          <button class="plus-btn">+</button>
-        </div>
+    <div class="input-group">
+      <label for="edad">Edad *</label>
+      <input type="number" id="edad" placeholder="Ingresa tu edad">
+    </div>
 
-        <!-- Personalizado Salud -->
-        <div class="custom-habit-wrapper">
-          <input type="text" class="custom-emoji-input" placeholder="Emoji">
-          <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
-          <button class="custom-habit-btn">Agregar</button>
+    <!-- Hábitos Registrados con asterisco en el título -->
+    <div id="habitosSeleccionadosContainer">
+      <h2>Hábitos registrados *</h2>
+      <div id="selectedHabitsList">(vacío)</div>
+    </div>
+
+    <!-- ACORDEONES POR CATEGORÍA -->
+    <div class="accordion" data-category="salud">
+      <div class="accordion-header">
+        <h3>Salud</h3>
+        <span>+</span>
+      </div>
+      <div class="accordion-content">
+        <div class="habit-list">
+          <div class="habit-item" data-habit="Beber agua">
+            <div class="habit-label">
+              <span class="habit-icon">💧</span>
+              <span>Beber agua</span>
+            </div>
+            <button class="plus-btn">+</button>
+          </div>
+          <div class="habit-item" data-habit="Comer frutas">
+            <div class="habit-label">
+              <span class="habit-icon">🍓</span>
+              <span>Comer frutas</span>
+            </div>
+            <button class="plus-btn">+</button>
+          </div>
+          <div class="habit-item" data-habit="Comer verduras">
+            <div class="habit-label">
+              <span class="habit-icon">🥦</span>
+              <span>Comer verduras</span>
+            </div>
+            <button class="plus-btn">+</button>
+          </div>
+          <!-- Input emoji + input texto + botón Agregar -->
+          <div class="custom-habit-wrapper">
+            <input type="text" class="custom-emoji-input" placeholder="Emoji">
+            <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
+            <button class="custom-habit-btn">Agregar</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="accordion" data-category="deporte">
-    <div class="accordion-header">
-      <h3>Deporte</h3>
-      <span>+</span>
-    </div>
-    <div class="accordion-content">
-      <div class="habit-list">
-        <div class="habit-item" data-habit="Caminar">
-          <div class="habit-label">
-            <span class="habit-icon">🚶‍♂️</span>
-            <span>Caminar</span>
+    <div class="accordion" data-category="deporte">
+      <div class="accordion-header">
+        <h3>Deporte</h3>
+        <span>+</span>
+      </div>
+      <div class="accordion-content">
+        <div class="habit-list">
+          <div class="habit-item" data-habit="Caminar">
+            <div class="habit-label">
+              <span class="habit-icon">🚶‍♂️</span>
+              <span>Caminar</span>
+            </div>
+            <button class="plus-btn">+</button>
           </div>
-          <button class="plus-btn">+</button>
-        </div>
-        <div class="habit-item" data-habit="Correr">
-          <div class="habit-label">
-            <span class="habit-icon">🏃‍♂️</span>
-            <span>Correr</span>
+          <div class="habit-item" data-habit="Correr">
+            <div class="habit-label">
+              <span class="habit-icon">🏃‍♂️</span>
+              <span>Correr</span>
+            </div>
+            <button class="plus-btn">+</button>
           </div>
-          <button class="plus-btn">+</button>
-        </div>
-        <div class="habit-item" data-habit="Yoga">
-          <div class="habit-label">
-            <span class="habit-icon">🧘‍♀️</span>
-            <span>Yoga</span>
+          <div class="habit-item" data-habit="Yoga">
+            <div class="habit-label">
+              <span class="habit-icon">🧘‍♀️</span>
+              <span>Yoga</span>
+            </div>
+            <button class="plus-btn">+</button>
           </div>
-          <button class="plus-btn">+</button>
-        </div>
-
-        <!-- Personalizado Deporte -->
-        <div class="custom-habit-wrapper">
-          <input type="text" class="custom-emoji-input" placeholder="Emoji">
-          <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
-          <button class="custom-habit-btn">Agregar</button>
+          <div class="custom-habit-wrapper">
+            <input type="text" class="custom-emoji-input" placeholder="Emoji">
+            <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
+            <button class="custom-habit-btn">Agregar</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="accordion" data-category="estilo-vida">
-    <div class="accordion-header">
-      <h3>Estilo de Vida</h3>
-      <span>+</span>
-    </div>
-    <div class="accordion-content">
-      <div class="habit-list">
-        <div class="habit-item" data-habit="Respiración consciente">
-          <div class="habit-label">
-            <span class="habit-icon">😮‍💨</span>
-            <span>Respiración consciente</span>
+    <div class="accordion" data-category="estilo-vida">
+      <div class="accordion-header">
+        <h3>Estilo de Vida</h3>
+        <span>+</span>
+      </div>
+      <div class="accordion-content">
+        <div class="habit-list">
+          <div class="habit-item" data-habit="Respiración consciente">
+            <div class="habit-label">
+              <span class="habit-icon">😮‍💨</span>
+              <span>Respiración consciente</span>
+            </div>
+            <button class="plus-btn">+</button>
           </div>
-          <button class="plus-btn">+</button>
-        </div>
-        <div class="habit-item" data-habit="Meditación">
-          <div class="habit-label">
-            <span class="habit-icon">🧘</span>
-            <span>Meditación</span>
+          <div class="habit-item" data-habit="Meditación">
+            <div class="habit-label">
+              <span class="habit-icon">🧘</span>
+              <span>Meditación</span>
+            </div>
+            <button class="plus-btn">+</button>
           </div>
-          <button class="plus-btn">+</button>
-        </div>
-        <div class="habit-item" data-habit="Leer un libro">
-          <div class="habit-label">
-            <span class="habit-icon">📚</span>
-            <span>Leer un libro</span>
+          <div class="habit-item" data-habit="Leer un libro">
+            <div class="habit-label">
+              <span class="habit-icon">📚</span>
+              <span>Leer un libro</span>
+            </div>
+            <button class="plus-btn">+</button>
           </div>
-          <button class="plus-btn">+</button>
-        </div>
-
-        <!-- Personalizado Estilo -->
-        <div class="custom-habit-wrapper">
-          <input type="text" class="custom-emoji-input" placeholder="Emoji">
-          <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
-          <button class="custom-habit-btn">Agregar</button>
+          <div class="custom-habit-wrapper">
+            <input type="text" class="custom-emoji-input" placeholder="Emoji">
+            <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
+            <button class="custom-habit-btn">Agregar</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="accordion" data-category="tiempo">
-    <div class="accordion-header">
-      <h3>Tiempo</h3>
-      <span>+</span>
-    </div>
-    <div class="accordion-content">
-      <div class="habit-list">
-        <div class="habit-item" data-habit="Revisar el día">
-          <div class="habit-label">
-            <span class="habit-icon">📝</span>
-            <span>Revisar el día</span>
+    <div class="accordion" data-category="tiempo">
+      <div class="accordion-header">
+        <h3>Tiempo</h3>
+        <span>+</span>
+      </div>
+      <div class="accordion-content">
+        <div class="habit-list">
+          <div class="habit-item" data-habit="Revisar el día">
+            <div class="habit-label">
+              <span class="habit-icon">📝</span>
+              <span>Revisar el día</span>
+            </div>
+            <button class="plus-btn">+</button>
           </div>
-          <button class="plus-btn">+</button>
-        </div>
-        <div class="habit-item" data-habit="Limpiar la mente">
-          <div class="habit-label">
-            <span class="habit-icon">💡</span>
-            <span>Limpiar la mente</span>
+          <div class="habit-item" data-habit="Limpiar la mente">
+            <div class="habit-label">
+              <span class="habit-icon">💡</span>
+              <span>Limpiar la mente</span>
+            </div>
+            <button class="plus-btn">+</button>
           </div>
-          <button class="plus-btn">+</button>
-        </div>
-        <div class="habit-item" data-habit="Planificar mañana">
-          <div class="habit-label">
-            <span class="habit-icon">🗓️</span>
-            <span>Planificar mañana</span>
+          <div class="habit-item" data-habit="Planificar mañana">
+            <div class="habit-label">
+              <span class="habit-icon">🗓️</span>
+              <span>Planificar mañana</span>
+            </div>
+            <button class="plus-btn">+</button>
           </div>
-          <button class="plus-btn">+</button>
-        </div>
-
-        <!-- Personalizado Tiempo -->
-        <div class="custom-habit-wrapper">
-          <input type="text" class="custom-emoji-input" placeholder="Emoji">
-          <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
-          <button class="custom-habit-btn">Agregar</button>
+          <div class="custom-habit-wrapper">
+            <input type="text" class="custom-emoji-input" placeholder="Emoji">
+            <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
+            <button class="custom-habit-btn">Agregar</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="accordion" data-category="dejar">
-    <div class="accordion-header">
-      <h3>Hábitos a Dejar</h3>
-      <span>+</span>
-    </div>
-    <div class="accordion-content">
-      <div class="habit-list">
-        <div class="habit-item" data-habit="Fumar">
-          <div class="habit-label">
-            <span class="habit-icon">🚭</span>
-            <span>Fumar</span>
+    <div class="accordion" data-category="dejar">
+      <div class="accordion-header">
+        <h3>Hábitos a Dejar</h3>
+        <span>+</span>
+      </div>
+      <div class="accordion-content">
+        <div class="habit-list">
+          <div class="habit-item" data-habit="Fumar">
+            <div class="habit-label">
+              <span class="habit-icon">🚭</span>
+              <span>Fumar</span>
+            </div>
+            <button class="plus-btn">+</button>
           </div>
-          <button class="plus-btn">+</button>
-        </div>
-        <div class="habit-item" data-habit="Comida chatarra">
-          <div class="habit-label">
-            <span class="habit-icon">🍔</span>
-            <span>Comida chatarra</span>
+          <div class="habit-item" data-habit="Comida chatarra">
+            <div class="habit-label">
+              <span class="habit-icon">🍔</span>
+              <span>Comida chatarra</span>
+            </div>
+            <button class="plus-btn">+</button>
           </div>
-          <button class="plus-btn">+</button>
-        </div>
-        <div class="habit-item" data-habit="Bebidas azucaradas">
-          <div class="habit-label">
-            <span class="habit-icon">🧃</span>
-            <span>Bebidas azucaradas</span>
+          <div class="habit-item" data-habit="Bebidas azucaradas">
+            <div class="habit-label">
+              <span class="habit-icon">🧃</span>
+              <span>Bebidas azucaradas</span>
+            </div>
+            <button class="plus-btn">+</button>
           </div>
-          <button class="plus-btn">+</button>
-        </div>
-
-        <!-- Personalizado Dejar -->
-        <div class="custom-habit-wrapper">
-          <input type="text" class="custom-emoji-input" placeholder="Emoji">
-          <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
-          <button class="custom-habit-btn">Agregar</button>
+          <div class="custom-habit-wrapper">
+            <input type="text" class="custom-emoji-input" placeholder="Emoji">
+            <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
+            <button class="custom-habit-btn">Agregar</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Sección de Objetivos con scroll horizontal (#objetivosList) -->
-  <div id="objetivosContainer">
-    <h2>Objetivos</h2>
-    <div id="objetivosList"><!-- Objetivos se renderizan aquí --></div>
-  </div>
+    <!-- Sección de Objetivos -->
+    <div id="objetivosContainer">
+      <h2>Objetivos</h2>
+      <div id="objetivosList"></div>
+    </div>
 
-  <button class="send-button" id="btnEnviar">Enviar</button>
+    <button class="send-button" id="btnEnviar">Enviar</button>
+  </main>
 
   <script>
     // --- ACORDEÓN ---
@@ -543,12 +524,12 @@
       const content = accordion.querySelector('.accordion-content');
       header.addEventListener('click', () => {
         const isOpen = content.classList.contains('open');
-        // Cierra todos
+        // Cerrar todos los paneles
         document.querySelectorAll('.accordion-content').forEach(ac => {
           ac.classList.remove('open');
           ac.style.maxHeight = null;
         });
-        // Abre solo el clicado si estaba cerrado
+        // Abrir solo si estaba cerrado
         if(!isOpen) {
           content.classList.add('open');
           content.style.maxHeight = content.scrollHeight + 'px';
@@ -640,13 +621,14 @@
 
           row.appendChild(contentDiv);
 
+          // Frecuencia (por defecto 'semanal')
           const freqDiv = document.createElement('div');
           freqDiv.className = 'frequency-row';
           const freqSelect = document.createElement('select');
           freqSelect.className = 'frequency-select';
           freqSelect.innerHTML = `
             <option value="diaria">Diaria</option>
-            <option value="semanal">Semanal</option>
+            <option value="semanal" selected>Semanal</option>
             <option value="mensual">Mensual</option>
           `;
           freqSelect.value = objectivesMap[habitName].freq;
@@ -667,7 +649,6 @@
       updateObjectivesDisplay();
     }
 
-    // Seleccionar/deseleccionar hábitos
     document.querySelectorAll('.habit-item').forEach(item => {
       item.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -751,18 +732,21 @@
       const nombre = document.getElementById('nombre').value.trim();
       const edad = document.getElementById('edad').value.trim();
 
+      // Recolectar hábitos seleccionados
       const selectedItems = document.querySelectorAll('.habit-item.selected');
       const selectedHabits = [];
       selectedItems.forEach(item => {
         selectedHabits.push(item.dataset.habit);
       });
 
+      // Recolectar objetivos/frecuencia
       const goals = {};
       selectedHabits.forEach(habit => {
         const data = objectivesMap[habit] || { text: '', freq: 'semanal' };
         goals[habit] = data;
       });
 
+      // Ajustamos a lo que el .py espera
       const payload = {
         name: nombre,
         age: edad,
@@ -770,6 +754,7 @@
         goals: goals
       };
 
+      // Envía al bot via WebAppData
       if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
         Telegram.WebApp.sendData(JSON.stringify(payload));
       }
