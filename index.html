@@ -1,17 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Gestor de Hábitos con Objetivos y Emojis (Adaptado a Telegram)</title>
+  <!-- Viewport meta para dispositivos móviles -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestor de Hábitos (Telegram WebApp)</title>
   <style>
     body {
       font-family: sans-serif;
-      margin: 20px;
+      margin: 10px;
       background-color: #f9f9f9;
+      /* Responsive layout */
     }
+
     h1 {
       margin-bottom: 1rem;
+      text-align: center;
     }
+
     .input-group {
       margin-bottom: 15px;
     }
@@ -26,9 +32,10 @@
       border: 1px solid #eee;
       border-radius: 6px;
       font-size: 1rem;
+      box-sizing: border-box;
     }
 
-    /* Sección "Hábitos registrados" */
+    /* Hábitos registrados */
     #habitosSeleccionadosContainer {
       background-color: #fff;
       border: 1px solid #eee;
@@ -78,10 +85,10 @@
       border-top: 1px solid #eee;
     }
 
-    /* Grid de 3 columnas para los hábitos */
+    /* Grid de 3 columnas para hábitos (responsive) */
     .habit-list {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       gap: 10px;
     }
     .habit-item {
@@ -94,7 +101,7 @@
       cursor: pointer;
       transition: background-color 0.2s;
       background-color: #fff;
-      /* ADAPTACIÓN: Guardamos la categoría en un data atributo */
+      box-sizing: border-box;
     }
     .habit-item:hover {
       background-color: #fdfdfd;
@@ -107,10 +114,10 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      pointer-events: none; /* Para no interferir con el click principal */
+      pointer-events: none;
     }
     .habit-icon {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
     }
     .plus-btn {
       background-color: transparent;
@@ -120,9 +127,9 @@
       cursor: pointer;
     }
 
-    /* Campo para hábito personalizado con emoji */
+    /* Campo personalizado (emoji + texto) */
     .custom-habit-wrapper {
-      grid-column: span 3; /* ocupa toda la fila */
+      grid-column: span 2; /* responsive */
       display: flex;
       gap: 8px;
       align-items: center;
@@ -131,7 +138,7 @@
       border-top: 1px dashed #ddd;
     }
     .custom-emoji-input {
-      width: 60px; /* tamaño pequeño */
+      width: 50px;
       text-align: center;
       border: 1px solid #eee;
       border-radius: 6px;
@@ -158,14 +165,14 @@
       background-color: #ec407a;
     }
 
-    /* Sección Objetivos */
+    /* Objetivos */
     #objetivosContainer {
       background-color: #fff;
       border: 1px solid #eee;
       border-radius: 8px;
       padding: 15px;
       margin-top: 20px;
-      margin-bottom: 20px;
+      margin-bottom: 60px; /* Deja espacio para el MainButton */
     }
     #objetivosContainer h2 {
       margin: 0 0 10px 0;
@@ -185,7 +192,6 @@
       display: inline-block;
       margin-bottom: 5px;
     }
-    /* Botón para habilitar/deshabilitar objetivo */
     .objetivo-plus-btn {
       background-color: #f06292;
       color: #fff;
@@ -199,7 +205,6 @@
     .objetivo-plus-btn:hover {
       background-color: #ec407a;
     }
-    /* Contenedor del input y boton "Quitar" */
     .objetivo-content {
       display: flex;
       align-items: center;
@@ -227,7 +232,7 @@
     }
 
     .frequency-row {
-      margin-left: 30px; /* indentado */
+      margin-left: 30px;
       margin-top: 5px;
     }
     .frequency-select {
@@ -236,33 +241,12 @@
       border-radius: 6px;
       border: 1px solid #eee;
     }
-
-    /* Botones de envío */
-    .btn-container {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .send-button,
-    .telegram-button {
-      background-color: #f06292;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 0.8rem 1.5rem;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    .send-button:hover,
-    .telegram-button:hover {
-      background-color: #ec407a;
-    }
   </style>
 </head>
 <body>
-  <h1>Gestor de Hábitos con Objetivos y Emojis</h1>
+  <h1>Gestor de Hábitos</h1>
 
-  <!-- Sección Nombre y Edad con asteriscos (*) -->
+  <!-- Nombre y Edad con asteriscos (*) -->
   <div class="input-group">
     <label for="nombre">Nombre *</label>
     <input type="text" id="nombre" placeholder="Ingresa tu nombre">
@@ -272,18 +256,15 @@
     <input type="number" id="edad" placeholder="Ingresa tu edad">
   </div>
 
-  <!-- Hábitos Registrados con asterisco en el título -->
   <div id="habitosSeleccionadosContainer">
     <h2>Hábitos registrados *</h2>
     <div id="selectedHabitsList">(vacío)</div>
   </div>
 
-  <!-- ACORDEONES POR CATEGORÍA -->
-  <!-- ADAPTACIÓN: Añadimos data-category en cada .habit-item -->
+  <!-- ACORDEONES: data-category en cada contenedor y en .habit-item -->
   <div class="accordion" data-category="Salud">
     <div class="accordion-header">
-      <h3>Salud</h3>
-      <span>+</span>
+      <h3>Salud</h3><span>+</span>
     </div>
     <div class="accordion-content">
       <div class="habit-list">
@@ -308,7 +289,6 @@
           </div>
           <button class="plus-btn">+</button>
         </div>
-        <!-- Input emoji + input texto + botón Agregar -->
         <div class="custom-habit-wrapper">
           <input type="text" class="custom-emoji-input" placeholder="Emoji">
           <input type="text" class="custom-habit-input" placeholder="Hábito personalizado...">
@@ -318,10 +298,10 @@
     </div>
   </div>
 
+  <!-- Repetimos acordeones para cada categoría... -->
   <div class="accordion" data-category="Deporte">
     <div class="accordion-header">
-      <h3>Deporte</h3>
-      <span>+</span>
+      <h3>Deporte</h3><span>+</span>
     </div>
     <div class="accordion-content">
       <div class="habit-list">
@@ -357,8 +337,7 @@
 
   <div class="accordion" data-category="Estilo de Vida">
     <div class="accordion-header">
-      <h3>Estilo de Vida</h3>
-      <span>+</span>
+      <h3>Estilo de Vida</h3><span>+</span>
     </div>
     <div class="accordion-content">
       <div class="habit-list">
@@ -394,8 +373,7 @@
 
   <div class="accordion" data-category="Tiempo">
     <div class="accordion-header">
-      <h3>Tiempo</h3>
-      <span>+</span>
+      <h3>Tiempo</h3><span>+</span>
     </div>
     <div class="accordion-content">
       <div class="habit-list">
@@ -431,8 +409,7 @@
 
   <div class="accordion" data-category="Hábitos a Dejar">
     <div class="accordion-header">
-      <h3>Hábitos a Dejar</h3>
-      <span>+</span>
+      <h3>Hábitos a Dejar</h3><span>+</span>
     </div>
     <div class="accordion-content">
       <div class="habit-list">
@@ -466,20 +443,40 @@
     </div>
   </div>
 
-  <!-- Sección de Objetivos (opcional, con un "+" para cada hábito) -->
+  <!-- Sección Objetivos -->
   <div id="objetivosContainer">
     <h2>Objetivos</h2>
     <div id="objetivosList"></div>
   </div>
 
-  <!-- Botones de envío -->
-  <div class="btn-container">
-    <button class="send-button" id="btnEnviar">Enviar (local)</button>
-    <button class="telegram-button" id="btnTelegram">Enviar a Telegram</button>
-  </div>
-
   <script>
-    // --- ACORDEÓN ---
+    /************************************************************/
+    /* LÓGICA DE FORMULARIO + BOTÓN PRINCIPAL TELEGRAM WEBAPP   */
+    /************************************************************/
+
+    // Configurar Telegram WebApp MainButton
+    let tg = null;
+    if(window.Telegram && window.Telegram.WebApp){
+      tg = window.Telegram.WebApp;
+      tg.MainButton.text = "🚫 Completa todos los campos 🚫";
+      tg.MainButton.disable();
+      tg.MainButton.color = "#ccc"; // gris
+      tg.MainButton.show();
+    }
+
+    const MAX_HABITS = 5;
+    let selectedCount = 0;
+
+    // objectivesMap[habit] = { text: '', freq: 'semanal' }
+    // togglesMap[habit] = bool
+    const objectivesMap = {};
+    const togglesMap = {};
+
+    const selectedHabitsList = document.getElementById('selectedHabitsList');
+    const objetivosContainer = document.getElementById('objetivosContainer');
+    const objetivosList = document.getElementById('objetivosList');
+
+    // Acordeón
     document.querySelectorAll('.accordion').forEach(accordion => {
       const header = accordion.querySelector('.accordion-header');
       const content = accordion.querySelector('.accordion-content');
@@ -498,36 +495,113 @@
       });
     });
 
-    const MAX_HABITS = 5;
-    let selectedCount = 0;
+    // Selección/deselección de hábitos
+    document.querySelectorAll('.habit-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if(!item.classList.contains('selected')) {
+          if(selectedCount < MAX_HABITS) {
+            item.classList.add('selected');
+            selectedCount++;
+          } else {
+            alert('Máximo de 5 hábitos alcanzado.');
+          }
+        } else {
+          item.classList.remove('selected');
+          selectedCount--;
+          delete objectivesMap[item.dataset.habit];
+          delete togglesMap[item.dataset.habit];
+        }
+        refreshUI();
+      });
+    });
 
-    // Estructuras: objectivesMap y togglesMap
-    // objectivesMap[habitName] = { text: '', freq: 'semanal' }
-    // togglesMap[habitName] = boolean
-    const objectivesMap = {};
-    const togglesMap = {};
+    // Agregar hábito personalizado
+    document.querySelectorAll('.custom-habit-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const parent = btn.closest('.habit-list');
+        const emojiInput = parent.querySelector('.custom-emoji-input');
+        const input = parent.querySelector('.custom-habit-input');
+        const customEmoji = emojiInput.value.trim() || '⭐';
+        const customName = input.value.trim();
 
-    const selectedHabitsList = document.getElementById('selectedHabitsList');
-    const objetivosContainer = document.getElementById('objetivosContainer');
-    const objetivosList = document.getElementById('objetivosList');
+        if(!customName) {
+          alert('Ingresa un nombre para el hábito.');
+          return;
+        }
+        if(selectedCount >= MAX_HABITS) {
+          alert('Máximo de 5 hábitos alcanzado.');
+          return;
+        }
 
-    function updateSelectedHabitsDisplay() {
+        // Obtener categoría desde el contenedor .accordion
+        const accordion = btn.closest('.accordion');
+        const category = accordion.dataset.category || 'Personalizado';
+
+        // Crear nuevo .habit-item
+        const newHabit = document.createElement('div');
+        newHabit.className = 'habit-item selected'; 
+        newHabit.dataset.habit = customName;
+        newHabit.dataset.category = category;
+        newHabit.innerHTML = `
+          <div class="habit-label">
+            <span class="habit-icon">${customEmoji}</span>
+            <span>${customName}</span>
+          </div>
+          <button class="plus-btn">+</button>
+        `;
+        selectedCount++;
+
+        // Limpiar
+        emojiInput.value = '';
+        input.value = '';
+
+        newHabit.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          if(newHabit.classList.contains('selected')) {
+            newHabit.classList.remove('selected');
+            selectedCount--;
+            delete objectivesMap[newHabit.dataset.habit];
+            delete togglesMap[newHabit.dataset.habit];
+          } else {
+            if(selectedCount < MAX_HABITS) {
+              newHabit.classList.add('selected');
+              selectedCount++;
+            } else {
+              alert('Máximo de 5 hábitos alcanzado.');
+            }
+          }
+          refreshUI();
+        });
+        parent.insertBefore(newHabit, parent.querySelector('.custom-habit-wrapper'));
+        refreshUI();
+      });
+    });
+
+    // Manejo de objetivos
+    function refreshUI(){
+      updateSelectedHabitsDisplay();
+      updateObjectivesDisplay();
+      updateMainButton();
+    }
+
+    function updateSelectedHabitsDisplay(){
       const selectedItems = document.querySelectorAll('.habit-item.selected');
-      if (selectedItems.length === 0) {
+      if(selectedItems.length === 0){
         selectedHabitsList.textContent = '(vacío)';
       } else {
         const arr = [];
-        selectedItems.forEach(item => {
-          arr.push(item.dataset.habit);
-        });
+        selectedItems.forEach(item => arr.push(item.dataset.habit));
         selectedHabitsList.textContent = arr.join(', ');
       }
     }
 
-    function updateObjectivesDisplay() {
+    function updateObjectivesDisplay(){
       const selectedItems = document.querySelectorAll('.habit-item.selected');
       objetivosList.innerHTML = '';
-      if (selectedItems.length === 0) {
+
+      if(selectedItems.length === 0){
         objetivosContainer.style.display = 'none';
         return;
       } else {
@@ -539,7 +613,7 @@
         if(!objectivesMap[habitName]) {
           objectivesMap[habitName] = { text: '', freq: 'semanal' };
         }
-        if(togglesMap[habitName] === undefined) {
+        if(togglesMap[habitName] === undefined){
           togglesMap[habitName] = false;
         }
 
@@ -550,7 +624,7 @@
         label.textContent = habitName + ':';
         row.appendChild(label);
 
-        if(!togglesMap[habitName]) {
+        if(!togglesMap[habitName]){
           const plusBtn = document.createElement('button');
           plusBtn.className = 'objetivo-plus-btn';
           plusBtn.textContent = '+';
@@ -560,6 +634,7 @@
           });
           row.appendChild(plusBtn);
         } else {
+          // input + boton Quitar
           const contentDiv = document.createElement('div');
           contentDiv.className = 'objetivo-content';
 
@@ -607,148 +682,54 @@
       });
     }
 
-    function refreshUI() {
-      updateSelectedHabitsDisplay();
-      updateObjectivesDisplay();
+    // Actualiza el Telegram MainButton según el estado del formulario
+    function updateMainButton(){
+      if(!tg) return; // Si no estamos en Telegram, no hace nada.
+
+      const nombre = document.getElementById('nombre').value.trim();
+      const edad = document.getElementById('edad').value.trim();
+      const selectedItems = document.querySelectorAll('.habit-item.selected');
+
+      // Simples validaciones
+      if(nombre && edad && selectedItems.length > 0){
+        tg.MainButton.text = "💪 Completar registro 💪";
+        tg.MainButton.enable();
+        tg.MainButton.color = "#419144"; // verde
+        tg.MainButton.onClick(sendToTelegram); 
+      } else {
+        tg.MainButton.text = "🚫 Completa todos los campos 🚫";
+        tg.MainButton.disable();
+        tg.MainButton.color = "#ccc"; // gris
+      }
     }
 
-    // Seleccionar/deseleccionar hábitos
-    document.querySelectorAll('.habit-item').forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if(!item.classList.contains('selected')) {
-          if(selectedCount < MAX_HABITS) {
-            item.classList.add('selected');
-            selectedCount++;
-          } else {
-            alert('Máximo de 5 hábitos alcanzado.');
-          }
-        } else {
-          item.classList.remove('selected');
-          selectedCount--;
-          delete objectivesMap[item.dataset.habit];
-          delete togglesMap[item.dataset.habit];
-        }
-        refreshUI();
-      });
-    });
-
-    // Agregar hábito personalizado con emoji
-    document.querySelectorAll('.custom-habit-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const parent = btn.closest('.habit-list');
-        const emojiInput = parent.querySelector('.custom-emoji-input');
-        const input = parent.querySelector('.custom-habit-input');
-        const customEmoji = emojiInput.value.trim() || '⭐';
-        const customName = input.value.trim();
-
-        if(!customName) {
-          alert('Ingresa un nombre para el hábito.');
-          return;
-        }
-        if(selectedCount >= MAX_HABITS) {
-          alert('Máximo de 5 hábitos alcanzado.');
-          return;
-        }
-
-        // Detectar la categoría desde el contenedor .accordion
-        const accordion = btn.closest('.accordion');
-        const category = accordion.dataset.category || 'Personalizado';
-
-        // Crear nuevo .habit-item
-        const newHabit = document.createElement('div');
-        newHabit.className = 'habit-item selected'; 
-        newHabit.dataset.habit = customName;
-        newHabit.dataset.category = category; // Guardamos la categoría
-        newHabit.innerHTML = `
-          <div class="habit-label">
-            <span class="habit-icon">${customEmoji}</span>
-            <span>${customName}</span>
-          </div>
-          <button class="plus-btn">+</button>
-        `;
-        selectedCount++;
-
-        // Limpiar inputs
-        emojiInput.value = '';
-        input.value = '';
-
-        // Listener para el nuevo habit-item
-        newHabit.addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          if(newHabit.classList.contains('selected')) {
-            newHabit.classList.remove('selected');
-            selectedCount--;
-            delete objectivesMap[newHabit.dataset.habit];
-            delete togglesMap[newHabit.dataset.habit];
-          } else {
-            if(selectedCount < MAX_HABITS) {
-              newHabit.classList.add('selected');
-              selectedCount++;
-            } else {
-              alert('Máximo de 5 hábitos alcanzado.');
-            }
-          }
-          refreshUI();
-        });
-
-        parent.insertBefore(newHabit, parent.querySelector('.custom-habit-wrapper'));
-        refreshUI();
-      });
-    });
-
-    // Botón Enviar LOCAL
-    const btnEnviar = document.getElementById('btnEnviar');
-    btnEnviar.addEventListener('click', () => {
-      // Recolectar la info en un payload local
-      const payload = buildLocalPayload();
-      console.log('Datos a enviar (Local):', payload);
-      alert('Se han enviado los datos (local): ' + JSON.stringify(payload));
-    });
-
-    // Botón Enviar a Telegram
-    const btnTelegram = document.getElementById('btnTelegram');
-    btnTelegram.addEventListener('click', () => {
+    // Esta función construye el diccionario y lo envía a Telegram
+    function sendToTelegram(){
       const payload = buildTelegramPayload();
       const dataStr = JSON.stringify(payload);
-      console.log('Payload para Telegram:', payload);
+      tg.sendData(dataStr);
+      alert("Datos enviados a Telegram:\n" + dataStr);
+    }
 
-      // Llamamos a la función del WebApp de Telegram
-      if(window.Telegram && window.Telegram.WebApp){
-        window.Telegram.WebApp.sendData(dataStr);
-        alert('Datos enviados a Telegram Bot:\n' + dataStr);
-      } else {
-        alert('Telegram WebApp no está disponible en este entorno.');
-      }
-    });
-
-    // Arma un diccionario con la estructura solicitada:
-    // {
-    //   "Nombre": "...",
-    //   "Edad": "...",
-    //   "Habito": [("categoria", "hábito"), ...],
-    //   "Objetivos": [("categoria", "hábito", "objetivo", "frecuencia"), ...]
-    // }
+    // Estructura final solicitada: { Nombre, Edad, Habito: [...], Objetivos: [...] }
+    // Habito: [ (categoria, habito), ... ]
+    // Objetivos: [ (categoria, habito, objetivo, frecuencia), ... ]
     function buildTelegramPayload(){
       const nombre = document.getElementById('nombre').value.trim();
       const edad = document.getElementById('edad').value.trim();
-
       const selectedItems = document.querySelectorAll('.habit-item.selected');
+
       const habitoTuplas = [];
       const objetivoTuplas = [];
 
       selectedItems.forEach(item => {
         const habitName = item.dataset.habit;
-        const category = item.dataset.category || 'Otro';
-
-        // Añadimos la tupla (categoria, habito)
+        const category = item.dataset.category || 'Personalizado';
+        // Agregar a "Habito"
         habitoTuplas.push([category, habitName]);
-
-        // Revisar si existe un objetivo para este hábito
-        const { text, freq } = objectivesMap[habitName] || { text: '', freq: 'semanal' };
-        if (togglesMap[habitName] === true) {
-          // Añadimos la tupla (categoria, habito, objetivo, frecuencia)
+        // Checar si hay objetivo
+        const { text, freq } = objectivesMap[habitName] || { text:'', freq:'semanal' };
+        if(togglesMap[habitName] === true){
           objetivoTuplas.push([category, habitName, text, freq]);
         }
       });
@@ -762,30 +743,11 @@
       return dictFinal;
     }
 
-    // Estructura local: (por si se quisiera usar la "Enviar (local)")
-    function buildLocalPayload(){
-      const nombre = document.getElementById('nombre').value.trim();
-      const edad = document.getElementById('edad').value.trim();
+    // Monitorear cambios en Nombre/Edad en tiempo real
+    document.getElementById('nombre').addEventListener('input', refreshUI);
+    document.getElementById('edad').addEventListener('input', refreshUI);
 
-      const selectedItems = document.querySelectorAll('.habit-item.selected');
-      const selectedHabits = [];
-      const objectives = {};
-
-      selectedItems.forEach(item => {
-        selectedHabits.push(item.dataset.habit);
-        const { text, freq } = objectivesMap[item.dataset.habit] || { text: '', freq: 'semanal' };
-        objectives[item.dataset.habit] = { text, freq };
-      });
-
-      return {
-        nombre,
-        edad,
-        habits: selectedHabits,
-        objectives
-      };
-    }
-
-    // Inicializar interfaz
+    // Inicializar
     refreshUI();
   </script>
 </body>
