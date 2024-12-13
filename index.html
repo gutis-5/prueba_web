@@ -237,7 +237,7 @@
   </style>
 </head>
 <body>
-  <h1>Gestor de Hábitos repetido</h1>
+  <h1>Gestor de Hábitos repetido 2</h1>
 
   <div class="input-group">
     <label for="nombre">Nombre *</label>
@@ -331,242 +331,51 @@
     <div id="objetivosList"></div>
   </div>
 
+  
   <script>
     /***********************************************
      * Lógica para Telegram WebApp MainButton
      ***********************************************/
     let tg = null;
+    const mainButton = window?.Telegram?.WebApp?.MainButton;
+  
     if (window.Telegram && window.Telegram.WebApp) {
       tg = window.Telegram.WebApp;
-      // Indicar que la WebApp ya está lista
-      tg.ready(); 
-      // Configurar botón principal de Telegram
-      const mainButton = tg.MainButton;
+      tg.ready(); // Indicar que la WebApp ya está lista
+  
+      // Configuración inicial del MainButton
       mainButton.text = "🚫 Completa todos los campos 🚫";
-      mainButton.disable();
       mainButton.color = "#ccc";
-      mainButton.show(); 
+      mainButton.disable();
+      mainButton.show();
     }
-
+  
     const MAX_HABITS = 5;
     let selectedCount = 0;
-    const objectivesMap = {}; // { habito: {text:'', freq:'semanal'}, ... }
-    const togglesMap = {};    // { habito: boolean }
-
+    const objectivesMap = {};
+    const togglesMap = {};
+  
     const selectedHabitsList = document.getElementById('selectedHabitsList');
-    const objetivosContainer = document.getElementById('objetivosContainer');
     const objetivosList = document.getElementById('objetivosList');
-
-    // Acordeón
-    document.querySelectorAll('.accordion').forEach(accordion => {
-      const header = accordion.querySelector('.accordion-header');
-      const content = accordion.querySelector('.accordion-content');
-      header.addEventListener('click', () => {
-        const isOpen = content.classList.contains('open');
-        document.querySelectorAll('.accordion-content').forEach(ac => {
-          ac.classList.remove('open');
-          ac.style.maxHeight = null;
-        });
-        if (!isOpen) {
-          content.classList.add('open');
-          content.style.maxHeight = content.scrollHeight + 'px';
-        }
-      });
-    });
-
-    // Seleccionar/deseleccionar
-    document.querySelectorAll('.habit-item').forEach(item => {
-      item.addEventListener('click', e => {
-        e.stopPropagation();
-        if(!item.classList.contains('selected')){
-          if(selectedCount < MAX_HABITS){
-            item.classList.add('selected');
-            selectedCount++;
-          } else {
-            alert('Máximo de 5 hábitos alcanzado.');
-          }
-        } else {
-          item.classList.remove('selected');
-          selectedCount--;
-          delete objectivesMap[item.dataset.habit];
-          delete togglesMap[item.dataset.habit];
-        }
-        refreshUI();
-      });
-    });
-
-    // Agregar hábito personalizado
-    document.querySelectorAll('.custom-habit-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const parent = btn.closest('.habit-list');
-        const emojiInput = parent.querySelector('.custom-emoji-input');
-        const input = parent.querySelector('.custom-habit-input');
-        const customEmoji = emojiInput.value.trim() || '⭐';
-        const customName = input.value.trim();
-        if(!customName){
-          alert('Ingresa un nombre para el hábito.');
-          return;
-        }
-        if(selectedCount >= MAX_HABITS){
-          alert('Máximo de 5 hábitos alcanzado.');
-          return;
-        }
-
-        const accordion = btn.closest('.accordion');
-        const category = accordion.dataset.category || 'Personalizado';
-
-        const newHabit = document.createElement('div');
-        newHabit.className = 'habit-item selected';
-        newHabit.dataset.habit = customName;
-        newHabit.dataset.category = category;
-        newHabit.innerHTML = `
-          <div class="habit-label">
-            <span class="habit-icon">${customEmoji}</span>
-            <span>${customName}</span>
-          </div>
-          <button class="plus-btn">+</button>
-        `;
-        selectedCount++;
-
-        emojiInput.value = '';
-        input.value = '';
-
-        newHabit.addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          if(newHabit.classList.contains('selected')){
-            newHabit.classList.remove('selected');
-            selectedCount--;
-            delete objectivesMap[newHabit.dataset.habit];
-            delete togglesMap[newHabit.dataset.habit];
-          } else {
-            if(selectedCount < MAX_HABITS){
-              newHabit.classList.add('selected');
-              selectedCount++;
-            } else {
-              alert('Máximo de 5 hábitos alcanzado.');
-            }
-          }
-          refreshUI();
-        });
-
-        parent.insertBefore(newHabit, parent.querySelector('.custom-habit-wrapper'));
-        refreshUI();
-      });
-    });
-
-    // UI
-    function refreshUI(){
+    const objetivosContainer = document.getElementById('objetivosContainer');
+  
+    function refreshUI() {
       updateSelectedHabitsDisplay();
       updateObjectivesDisplay();
-      updateMainButton(); 
+      updateMainButton(); // Actualiza el estado del MainButton
     }
-
-    function updateSelectedHabitsDisplay(){
-      const selectedItems = document.querySelectorAll('.habit-item.selected');
-      if(selectedItems.length === 0){
-        selectedHabitsList.textContent = '(vacío)';
-      } else {
-        const arr = [];
-        selectedItems.forEach(i => arr.push(i.dataset.habit));
-        selectedHabitsList.textContent = arr.join(', ');
-      }
-    }
-
-    function updateObjectivesDisplay(){
-      const selectedItems = document.querySelectorAll('.habit-item.selected');
-      objetivosList.innerHTML = '';
-      if(selectedItems.length === 0){
-        objetivosContainer.style.display = 'none';
-        return;
-      }
-      objetivosContainer.style.display = 'block';
-
-      selectedItems.forEach(item => {
-        const habitName = item.dataset.habit;
-        if(!objectivesMap[habitName]){
-          objectivesMap[habitName] = { text:'', freq:'semanal' };
-        }
-        if(togglesMap[habitName] === undefined){
-          togglesMap[habitName] = false;
-        }
-
-        const row = document.createElement('div');
-        row.className = 'objetivo-row';
-
-        const label = document.createElement('label');
-        label.textContent = habitName + ':';
-        row.appendChild(label);
-
-        if(!togglesMap[habitName]){
-          const plusBtn = document.createElement('button');
-          plusBtn.className = 'objetivo-plus-btn';
-          plusBtn.textContent = '+';
-          plusBtn.addEventListener('click', () => {
-            togglesMap[habitName] = true;
-            updateObjectivesDisplay();
-          });
-          row.appendChild(plusBtn);
-        } else {
-          const contentDiv = document.createElement('div');
-          contentDiv.className = 'objetivo-content';
-
-          const inputObj = document.createElement('input');
-          inputObj.type = 'text';
-          inputObj.className = 'objetivo-input';
-          inputObj.value = objectivesMap[habitName].text;
-          inputObj.addEventListener('input', () => {
-            objectivesMap[habitName].text = inputObj.value;
-          });
-          contentDiv.appendChild(inputObj);
-
-          const removeBtn = document.createElement('button');
-          removeBtn.className = 'remove-objetivo-btn';
-          removeBtn.textContent = 'Quitar';
-          removeBtn.addEventListener('click', () => {
-            togglesMap[habitName] = false;
-            objectivesMap[habitName] = { text:'', freq:'semanal' };
-            updateObjectivesDisplay();
-          });
-          contentDiv.appendChild(removeBtn);
-
-          row.appendChild(contentDiv);
-
-          // Frecuencia
-          const freqDiv = document.createElement('div');
-          freqDiv.className = 'frequency-row';
-          const freqSelect = document.createElement('select');
-          freqSelect.className = 'frequency-select';
-          freqSelect.innerHTML = `
-            <option value="diaria">Diaria</option>
-            <option value="semanal">Semanal</option>
-            <option value="mensual">Mensual</option>
-          `;
-          freqSelect.value = objectivesMap[habitName].freq;
-          freqSelect.addEventListener('change', () => {
-            objectivesMap[habitName].freq = freqSelect.value;
-          });
-          freqDiv.appendChild(freqSelect);
-
-          row.appendChild(freqDiv);
-        }
-        objetivosList.appendChild(row);
-      });
-    }
-
-    // Lógica del mainButton
-    function updateMainButton(){
-      if(!tg) return;  // Si no estamos en Telegram, no hacemos nada
-      const mainButton = tg.MainButton;
+  
+    function updateMainButton() {
+      if (!tg) return; // Si no estamos en Telegram, salimos
+  
       const nombre = document.getElementById('nombre').value.trim();
       const edad = document.getElementById('edad').value.trim();
       const selectedItems = document.querySelectorAll('.habit-item.selected');
-
-      // Mismo snippet que diste
-      if(nombre && edad && selectedItems.length > 0){
+  
+      if (nombre && edad && selectedItems.length > 0) {
         mainButton.text = "💪 Completar registro 💪";
         mainButton.enable();
-        mainButton.color = "#419144"; // verde
+        mainButton.color = "#419144";
         mainButton.onClick(sendToTelegram);
       } else {
         mainButton.text = "🚫 Completa todos los campos 🚫";
@@ -574,34 +383,33 @@
         mainButton.color = "#ccc";
       }
     }
-
-    function sendToTelegram(){
+  
+    function sendToTelegram() {
       const payload = buildTelegramPayload();
       const dataStr = JSON.stringify(payload);
-      // Enviar datos al bot
       tg.sendData(dataStr);
       alert("Datos enviados a Telegram:\n" + dataStr);
     }
-
-    function buildTelegramPayload(){
+  
+    function buildTelegramPayload() {
       const nombre = document.getElementById('nombre').value.trim();
       const edad = document.getElementById('edad').value.trim();
       const selectedItems = document.querySelectorAll('.habit-item.selected');
-
+  
       const habitoTuplas = [];
       const objetivoTuplas = [];
-
+  
       selectedItems.forEach(item => {
         const habitName = item.dataset.habit;
         const category = item.dataset.category || 'Personalizado';
         habitoTuplas.push([category, habitName]);
-
-        const { text, freq } = objectivesMap[habitName] || {text:'', freq:'semanal'};
-        if(togglesMap[habitName] === true){
+  
+        const { text, freq } = objectivesMap[habitName] || { text: '', freq: 'semanal' };
+        if (togglesMap[habitName] === true) {
           objetivoTuplas.push([category, habitName, text, freq]);
         }
       });
-
+  
       return {
         "Nombre": nombre,
         "Edad": edad,
@@ -609,12 +417,18 @@
         "Objetivos": objetivoTuplas
       };
     }
-
-    // Listeners
+  
+    // Listeners para el formulario
     document.getElementById('nombre').addEventListener('input', refreshUI);
     document.getElementById('edad').addEventListener('input', refreshUI);
-
+    document.querySelectorAll('.habit-item').forEach(item => {
+      item.addEventListener('click', () => refreshUI());
+    });
+  
     refreshUI();
   </script>
+  
+  
+  
 </body>
 </html>
